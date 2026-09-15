@@ -1,11 +1,11 @@
-package frc.robot.modules.sumperstructure.modules.Dumpermodule;
+package frc.robot.modules.superstructure.modules.DumperModule;
 
 import com.stzteam.features.marsprocessor.Fallback;
 import com.stzteam.features.unitprocessor.Unit;
 import com.stzteam.mars.models.singlemodule.Data;
 import com.stzteam.mars.models.singlemodule.IO;
 
-import frc.robot.modules.sumperstructure.modules.Dumpermodule.DumperIOkraken.DumperMODE;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIOkraken.DumperMODE;
 
 @Fallback
 public interface DumperIO extends IO<DumperIO.DumperInputs>{
