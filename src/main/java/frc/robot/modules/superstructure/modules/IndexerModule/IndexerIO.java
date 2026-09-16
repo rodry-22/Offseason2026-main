@@ -1,4 +1,4 @@
-package frc.robot.modules.superstructure.modules.IndexerModule;
+package frc.robot.modules.superstructure.modules.indexerModule;
 
 import com.stzteam.features.marsprocessor.Fallback;
 import com.stzteam.features.unitprocessor.Unit;
