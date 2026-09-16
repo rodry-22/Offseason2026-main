@@ -16,10 +16,10 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
         public double rollerRPS = 0;
 
         @Unit(value = "Volts", group = "Indexer")
-        public double indexerVolts = 0;
+        public double indexVolts = 0;
 
         @Unit(value = "RPS", group = "Indexer")
-        public double indexerRPS = 0;
+        public double indexRPS = 0;
 
 
         @Override
@@ -27,29 +27,47 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
             IndexerInputs clone = new IndexerInputs();
             clone.rollerVolts = this.rollerVolts;
             clone.rollerRPS = this.rollerRPS;
-            clone.indexerVolts = this.indexerVolts;
-            clone.indexerRPS = this.indexerRPS;
+            clone.indexVolts = this.indexVolts;
+            clone.indexRPS = this.indexRPS;
             return clone;
         }
     }
 
     public void applyRollers(@Unit(value = "Volts", group = "Indexer") double volts);
-    //apply voltage to the rollers' motor
-    public void applyIndexer(@Unit(value = "Volts", group = "Indexer") double volts);
-    //apply voltage to the indexer's motor
+    /**
+     * Sets the voltage of the rollers motor.
+     * @param volts The voltage to apply to the rollers motor.
+    */
+
+    public void applyIndex(@Unit(value = "Volts", group = "Indexer") double volts);
+    /**
+     * Sets the voltage of the index motor.
+     * @param volts The voltage to apply to the indexer motor.
+     */
 
     public void setRollers(@Unit(value = "RPS", group = "Indexer") double RPS);
+    /**
+     * Sets the rollers to a given RPS with a closed loop controller.
+     * @param RPS The desired RPS.
+     */
 
-    public void setIndexer(@Unit(value = "RPS", group = "Indexer") double RPS);
-    //set index with RPS
+    public void setIndex(@Unit(value = "RPS", group = "Indexer") double RPS);
+    /**
+     * Sets the index to a given RPS with a closed loop controller.
+     * @param RPS The desired RPS.
+     */
 
     public void stopRollers();
     /**
      * Stops the rollers motor.
      */
-    public void stopIndexer();
+    public void stopIndex();
+    /**
+     * Stops the index motor.
+     */
 
     public void stopAll();
-    //stop both motors
-
+    /**
+     * Stops the the indexer system (both roller and indexer)
+     */
 }

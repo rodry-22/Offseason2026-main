@@ -51,68 +51,47 @@ public class IndexerIOSpark implements IndexerIO {
         inputs.rollerVolts = rollMotor.getAppliedOutput() * rollMotor.getBusVoltage();
         inputs.rollerRPS = rollMotor.getEncoder().getVelocity();
         
-        inputs.indexerVolts = indexMotor.getAppliedOutput() * indexMotor.getBusVoltage();
-        inputs.indexerRPS = indexMotor.getEncoder().getVelocity();
+        inputs.indexVolts = indexMotor.getAppliedOutput() * indexMotor.getBusVoltage();
+        inputs.indexRPS = indexMotor.getEncoder().getVelocity();
 	}
 
     @Override
     public void applyRollers(double volts) {
         rollMotor.setVoltage(volts);
     }
-    /**
-     * Sets the voltage of the rollers motor.
-     * @param volts The voltage to apply to the rollers motor.
-     */
     
     @Override
-    public void applyIndexer(double volts) {
+    public void applyIndex(double volts) {
         indexMotor.setVoltage(volts);
     }
-    /**
-     * Sets the voltage of the indexer motor.
-     * @param volts The voltage to apply to the indexer motor.
-     */
     
     @Override
     public void setRollers(double RPS) {
         rollController.setSetpoint(RPS, ControlType.kVelocity);
     }
-    /**
-     * Sets the rollers to a given RPS with a closed loop controller.
-     * @param RPS The desired RPS.
-     */
-    
+        
     @Override
-    public void setIndexer(double RPS) {
+    public void setIndex(double RPS) {
         indexController.setSetpoint(RPS, ControlType.kVelocity);
     }
-    /**
-     * Sets the indexer to a given RPS with a closed loop controller.
-     * @param RPS The desired RPS.
-     */
+    
 
     @Override
     public void stopRollers() {
         rollMotor.stopMotor();
     }
-    /**
-     * Stops the rollers motor.
-     */
+
     @Override
-    public void stopIndexer() {
+    public void stopIndex() {
         indexMotor.stopMotor();
     }
-    /**
-     * Stops the indexer motor.
-     */
+    
     @Override
     public void stopAll() {
         indexMotor.stopMotor();
         rollMotor.stopMotor();
     }
-    /**
-     * Stops the the indexer system (both roller and indexer)
-     */
+    
 
 }
 

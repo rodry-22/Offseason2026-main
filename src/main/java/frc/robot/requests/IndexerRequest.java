@@ -15,18 +15,17 @@ import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO.IndexerI
 public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
     
     public static ModuleColorCode IDLE =
-        ModuleColorCode.solid("IDLE", Severity.OK, Color.kBlueViolet, "Index is idle");
+        ModuleColorCode.solid("IDLE", Severity.OK, Color.kBlueViolet, "Indexer is idle");
     public static ModuleColorCode INDEXING_VOLTS=
         ModuleColorCode.solid("INDEXING_VOLTS", Severity.OK, Color.kSteelBlue, "Working index"); //TODO: find a good name. Subsytem is called the same and it's confusing
     public static ModuleColorCode INDEXING_RPS=
-        ModuleColorCode.solid("INDEXING_RPS", Severity.OK, Color.kSteelBlue, "Working index"); //TODO: find a good name. Subsytem is called the same and it's confusing
+        ModuleColorCode.solid("INDEXING_RPS", Severity.OK, Color.kSteelBlue, "Working index");
     public static ModuleColorCode ROLLING_VOLTS=
         ModuleColorCode.solid("ROLLING_VOLTS", Severity.OK, Color.kAquamarine, "Working rollers");
     public static ModuleColorCode ROLLING_RPS=
         ModuleColorCode.solid("ROLLING_RPS", Severity.OK, Color.kAquamarine, "Working rollers");
     public static ModuleColorCode PROCESSING=
         ModuleColorCode.solid("PROCESSING", Severity.OK, Color.kAquamarine, "Rollers and Indexer working");
-    //public static ModuleColorCode 
 
      @CreateCommand(name = "idle")
      public static class Idle implements IndexerRequest{
@@ -36,52 +35,84 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
             return ActionStatus.of(IDLE, "Indexer is idle");
         }
     }
-     @CreateCommand(name = "processing")
-     public static class Processing implements IndexerRequest{
-        public double m_volts = 0; 
-            public Processing withVolts(double volts){
-                m_volts = volts;
-                return this;
-        }
-        @Override
-        public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
-            actor.applyIndexer(m_volts);
-            actor.applyRollers(m_volts);
-            return ActionStatus.of(PROCESSING, "Rollers and Index working");
-        }
-    }
-
-
-    /*
-     * I've got some questions with the _Volts commands. Not sure if there should be a default Voltage
-     */
-    @CreateCommand(name = "rollersVolts")
-    public static class Rollers implements IndexerRequest{
-        public double m_volts = 0; //TODO: find a good default value?
-        public Rollers withVolts(double volts){
-            m_volts = volts;
-            return this;
-        }
-        @Override
-        public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
-            actor.applyRollers(m_volts);
-            return ActionStatus.of(ROLLING_VOLTS, "Only rollers working");
-        }
-    }
-
-    @CreateCommand(name = "indexVolts")
-    public static class Index implements IndexerRequest{
+    // }
+    @CreateCommand(name = "setRollers")
+    public static class setRollers implements IndexerRequest{
         public double m_volts = 0;
-        public Index withVolts(double volts){
+        public double RPS = 0;
+        public setRollers withVolts(double volts){
             m_volts = volts;
+            return this;//TODO: don't think it should be "return this", bc concatenation
+        }
+        public setRollers withRPS(double RPS){
+            this.RPS = RPS;
             return this;
         }
         @Override
         public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
-            actor.applyIndexer(m_volts);
-            return ActionStatus.of(INDEXING_VOLTS, "Only index working");
+            if(m_volts != 0){
+                actor.applyRollers(m_volts);
+                return ActionStatus.of(ROLLING_VOLTS, "Only rollers voltage");
+            } else if(RPS != 0){
+                actor.setRollers(RPS);
+                return ActionStatus.of(ROLLING_RPS, "Only rollers RPS");
+            } else {
+                actor.stopRollers();
+                return ActionStatus.of(IDLE, "Indexer is idle");
+            }
         }
     }
-    //Adding a command to individually stop the indexer and rollers, could be useful
-    //TODO: Use the RPS commands
+    
+    @CreateCommand(name = "setIndex")
+    public static class setIndex implements IndexerRequest{
+        public double m_volts = 0;
+        public double RPS = 0;
+        public setIndex withVolts(double volts){
+            m_volts = volts;
+            return this;
+            }
+        public setIndex withRPS(double RPS){
+            this.RPS = RPS;
+            return this;
+            }
+        @Override
+        public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
+            if(m_volts != 0){
+                actor.applyIndex(m_volts);
+                return ActionStatus.of(INDEXING_VOLTS, "Only index voltage");
+            } else if(RPS != 0){
+                actor.setIndex(RPS);
+                return ActionStatus.of(INDEXING_RPS, "Only index RPS");
+            } else {
+                actor.stopIndex();
+                return ActionStatus.of(IDLE, "Indexer is idle");
+                }
+            }
+        }
+        //  @CreateCommand(name = "processing")
+        //  public static class Processing implements IndexerRequest{
+        //     public double m_volts = 0;
+        //     public double m_RPS = 0;
+        //         public Processing withVolts(double volts){
+        //             m_volts = volts;
+        //             return this;
+        //     }
+        //         public Processing withRPS(double RPS){
+        //             m_RPS = RPS;
+        //             return this;
+        //     }
+        //     @Override
+        //     public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
+        //     if(m_volts != 0){
+        //         actor.applyIndex(m_volts);
+        //         return ActionStatus.of(PROCESSING, "Rollers and Index working");
+        //     } else if(m_RPS != 0){
+        //         actor.setIndex(m_RPS);
+        //         return ActionStatus.of(PROCESSING, "Rollers and Index working");
+        //     } else {
+        //         actor.stopAll();
+        //         return ActionStatus.of(IDLE, "Indexer is idle");
+        //     }
+        //     }
+        // }
 }
