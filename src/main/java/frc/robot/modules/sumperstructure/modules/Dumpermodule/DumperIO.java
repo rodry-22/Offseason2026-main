@@ -5,7 +5,6 @@ import com.stzteam.features.unitprocessor.Unit;
 import com.stzteam.mars.models.singlemodule.Data;
 import com.stzteam.mars.models.singlemodule.IO;
 
-import frc.robot.modules.sumperstructure.modules.Dumpermodule.DumperIOkraken.DumperMODE;
 
 @Fallback
 public interface DumperIO extends IO<DumperIO.DumperInputs>{
@@ -37,6 +36,14 @@ public interface DumperIO extends IO<DumperIO.DumperInputs>{
             return clone;
 
         }
+
+        
+    }
+        // TODO Le cambié esto, pase el enum de la IOKraken acá porque esta IO debería funcionar por si sola y porque 
+        // tenía un problema bien raro en la sim todo porque esto estaba en el otro archivo
+            public enum DumperMODE{
+        kBACK,
+        kFRONT
     }
 
     

@@ -1,6 +1,10 @@
 {
-  "Arm": {
-    "ArmIO.applyOutput(volts)": "Volts",
-    "ArmInputs.voltage": "Volts"
+  "Dumper": {
+    "DumperIO.setPosition(angle)": "Degrees",
+    "DumperInputs.position": "Degrees",
+    "DumperInputs.VelocityRPS": "RPS",
+    "DumperInputs.appliedVolts": "Volts",
+    "DumperInputs.TargetAngle": "Degrees",
+    "DumperIO.applyOutput(volts)": "Volts"
   }
 }
