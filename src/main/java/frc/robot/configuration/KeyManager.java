@@ -15,5 +15,6 @@ public class KeyManager {
 
     //----------------------------------------MODULOS-------------------------------------------------------------------------
     public static final String DUMPER_KEY = "Dumper";
+    public static final String INDEXER_KEY = "Indexer";
     
 }

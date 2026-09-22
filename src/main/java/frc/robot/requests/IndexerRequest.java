@@ -28,8 +28,8 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
     public static ModuleColorCode PROCESSING=
         ModuleColorCode.solid("PROCESSING", Severity.OK, Color.kAquamarine, "Rollers and Indexer working");
 
-     @CreateCommand(name = "idle")
-     public static class Idle implements IndexerRequest{
+     @CreateCommand(name = "idleIndexer")
+     public static class idleIndexer implements IndexerRequest{
         @Override
         public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
             actor.stopAll();
