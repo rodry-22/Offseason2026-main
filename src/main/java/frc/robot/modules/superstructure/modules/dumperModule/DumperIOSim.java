@@ -1,5 +1,1 @@
-package frc.robot.modules.superstructure.modules.dumperModule;
-
-public class DumperIOSim {
-    
-}
+package frc.robot.modules.superstructure.modules.DumperModule;

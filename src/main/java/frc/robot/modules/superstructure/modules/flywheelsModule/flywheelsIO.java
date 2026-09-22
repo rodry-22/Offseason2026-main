@@ -1,5 +1,1 @@
-package frc.robot.modules.superstructure.modules.flywheelsModule;
-
-public class flywheelsIO {
-    
-}
+package frc.robot.modules.superstructure.modules.FlywheelsModule;

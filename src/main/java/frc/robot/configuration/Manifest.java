@@ -12,7 +12,7 @@ import frc.robot.modules.swerve.SwerveTelemetry;
 
 public class Manifest {
 
-    public static final RunMode CURRENT_MODE = RunMode.SIM;
+    public static final RunMode CURRENT_MODE = RunMode.REAL;
 
     public enum ControllerType {
         PS5,

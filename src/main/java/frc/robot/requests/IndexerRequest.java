@@ -8,8 +8,9 @@ import com.stzteam.mars.diagnostics.StatusColorCode.Severity;
 import com.stzteam.mars.requests.Request;
 
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.modules.superstructure.modules.indexerModule.IndexerIO;
-import frc.robot.modules.superstructure.modules.indexerModule.IndexerIO.IndexerInputs;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO.IndexerInputs;
+
 
 @RequestFactory
 public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
