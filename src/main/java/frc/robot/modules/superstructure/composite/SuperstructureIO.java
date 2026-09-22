@@ -1,5 +1,7 @@
 package frc.robot.modules.superstructure.composite;
 
-public class SuperstructureIO {
+
+public class SuperstructureIO{
+
     
 }

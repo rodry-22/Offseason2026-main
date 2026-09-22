@@ -1,4 +1,4 @@
-package frc.robot.modules.superstructure.modules.indexerModule;
+package frc.robot.modules.superstructure.modules.IndexerModule;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;

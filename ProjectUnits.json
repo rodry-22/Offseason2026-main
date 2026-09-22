@@ -1,13 +1,13 @@
 {
   "Indexer": {
-    "IndexerInputs.indexerRPS": "RPS",
     "IndexerIO.applyRollers(volts)": "Volts",
-    "IndexerIO.applyIndexer(volts)": "Volts",
+    "IndexerInputs.indexRPS": "RPS",
     "IndexerInputs.rollerVolts": "Volts",
     "IndexerIO.setRollers(RPS)": "RPS",
-    "IndexerIO.setIndexer(RPS)": "RPS",
+    "IndexerIO.applyIndex(volts)": "Volts",
+    "IndexerIO.setIndex(RPS)": "RPS",
     "IndexerInputs.rollerRPS": "RPS",
-    "IndexerInputs.indexerVolts": "Volts"
+    "IndexerInputs.indexVolts": "Volts"
   },
   "Dumper": {
     "DumperIO.setPosition(angle)": "Degrees",

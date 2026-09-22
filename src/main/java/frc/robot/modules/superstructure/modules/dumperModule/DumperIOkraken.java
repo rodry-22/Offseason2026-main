@@ -65,10 +65,6 @@ public class DumperIOkraken implements DumperIO{
         AngulatorConfigurator.apply(motorConfigs);    
     }
 
-        public enum DumperMODE{
-        kBACK,
-        kFRONT
-    }
 
      @Override
     public void setPosition(double angle, DumperMODE mode){

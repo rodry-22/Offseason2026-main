@@ -1,5 +1,6 @@
 package frc.robot.configuration;
 
+
 import com.stzteam.mars.blackboard.BlackboardKey;
 
 public class KeyManager {
@@ -11,5 +12,8 @@ public class KeyManager {
     public static final BlackboardKey<Double> myBlackBoardKeyDouble = new BlackboardKey<>(myKey, Double.class);
     public static final BlackboardKey<Boolean> myBlackBoardKeyBoolean = new BlackboardKey<>(myKey, Boolean.class);
     public static final String SWERVE_KEY = "Swerve";
+
+    //----------------------------------------MODULOS-------------------------------------------------------------------------
+    public static final String DUMPER_KEY = "Dumper";
     
 }
