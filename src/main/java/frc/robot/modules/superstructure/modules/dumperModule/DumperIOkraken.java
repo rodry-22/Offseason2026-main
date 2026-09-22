@@ -1,4 +1,4 @@
-package frc.robot.modules.superstructure.modules.dumperModule;
+package frc.robot.modules.superstructure.modules.DumperModule;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
