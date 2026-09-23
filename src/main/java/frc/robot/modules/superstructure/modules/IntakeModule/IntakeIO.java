@@ -36,7 +36,9 @@ public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
 
     public void stopRolls();
 
-    public void setAngulatorPosition(@Unit (value = "Degrees" , group = "Intake")double position);
+    public void setAngulatorPosition(double position);
+
+    public double getAngulatorPosition();
 
     public void resetAngulator(); //reset encoder pos to 0
 

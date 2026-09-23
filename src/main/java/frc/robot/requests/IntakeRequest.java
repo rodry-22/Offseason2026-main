@@ -7,15 +7,17 @@ import com.stzteam.mars.diagnostics.ModuleColorCode;
 import com.stzteam.mars.diagnostics.StatusColorCode.Severity;
 import com.stzteam.mars.requests.Request;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.configuration.constants.moduleconstants.IntakeConstants;
 import frc.robot.modules.superstructure.modules.IntakeModule.IntakeIO;
 import frc.robot.modules.superstructure.modules.IntakeModule.IntakeIO.IntakeInputs;
 
 @RequestFactory
 public interface IntakeRequest extends Request<IntakeInputs, IntakeIO> {
     
-    public static ModuleColorCode IDLE = 
-        ModuleColorCode.solid("IDLE", Severity.OK, Color.kGray, "System is idle");
+    public static ModuleColorCode STOP = 
+        ModuleColorCode.solid("STOP", Severity.OK, Color.kGray, "System is idle");
     //
     public static ModuleColorCode INTAKING_RPS = 
         ModuleColorCode.solid("INTAKING", Severity.OK, Color.kGreen, "Intake is active");
@@ -31,16 +33,16 @@ public interface IntakeRequest extends Request<IntakeInputs, IntakeIO> {
 
     //
 
-    @CreateCommand(name = "idle")
+    @CreateCommand(name = "stop")
     public static class Idle implements IntakeRequest {
         @Override
         public ActionStatus apply(IntakeInputs data, IntakeIO actor) {
             actor.stopAll();
-            return ActionStatus.of(IDLE, "Intake is idle");
+            return ActionStatus.of(STOP, "Intake is idle");
         }
     } //creamos comando para detener intake
 
-    @CreateCommand(name = "setRollsVoltage")
+    @CreateCommand(name = "setRolls")
     public static class SetRolls implements IntakeRequest {
 
         private double tVolts = 0.0;
@@ -68,7 +70,7 @@ public interface IntakeRequest extends Request<IntakeInputs, IntakeIO> {
 
             } else {
                 actor.stopRolls();
-                return ActionStatus.of(IDLE, "Rolls are idle");
+                return ActionStatus.of(STOP, "Rolls are idle");
             }
         }
     }  
@@ -77,23 +79,27 @@ public interface IntakeRequest extends Request<IntakeInputs, IntakeIO> {
     public static class SetAngulator implements IntakeRequest {
 
         private double tPosition = 0.0;
-
-        public SetAngulator withPosition(double position) {
-            this.tPosition = position;
+        
+        public SetAngulator withPosition(double degrees) {
+            this.tPosition = degrees / 360.0; //convert degrees to rotations
             return this;
         }
 
         @Override
         public ActionStatus apply(IntakeInputs data, IntakeIO actor) {
-            if (tPosition != 0.0) {
+
+            boolean atPosition = MathUtil.isNear(tPosition*360, data.angulatorPosition, IntakeConstants.toleranceDegrees);
+
+            if (atPosition) {
+                return ActionStatus.of(ANGULATOR_POSITION, "Angulator is at position");
+            } else if (tPosition != 0.0) {
                 actor.setAngulatorPosition(tPosition);
                 return ActionStatus.of(ANGULATOR_TARGET, "Angulator is moving to position");
 
             } else {
                 actor.stopAngulator();
-                return ActionStatus.of(IDLE, "Angulator is idle");
+                return ActionStatus.of(STOP, "Angulator is idle");
             }
-
 
 
         }
