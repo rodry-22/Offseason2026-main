@@ -18,7 +18,7 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
     public static ModuleColorCode IDLE =
         ModuleColorCode.solid("IDLE", Severity.OK, Color.kBlueViolet, "Indexer is idle");
     public static ModuleColorCode INDEXING_VOLTS=
-        ModuleColorCode.solid("INDEXING_VOLTS", Severity.OK, Color.kSteelBlue, "Working index"); //TODO: find a good name. Subsytem is called the same and it's confusing
+        ModuleColorCode.solid("INDEXING_VOLTS", Severity.OK, Color.kSteelBlue, "Working index");
     public static ModuleColorCode INDEXING_RPS=
         ModuleColorCode.solid("INDEXING_RPS", Severity.OK, Color.kSteelBlue, "Working index");
     public static ModuleColorCode ROLLING_VOLTS=
@@ -43,7 +43,7 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
         public double RPS = 0;
         public setRollers withVolts(double volts){
             m_volts = volts;
-            return this;//TODO: don't think it should be "return this", bc concatenation
+            return this;
         }
         public setRollers withRPS(double RPS){
             this.RPS = RPS;

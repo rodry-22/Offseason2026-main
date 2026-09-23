@@ -34,6 +34,8 @@ public class Indexer extends ModularSubsystem<IndexerInputs, IndexerIO> implemen
 
     @Override
     public void absolutePeriodic(IndexerInputs inputs) {}
+
+    
 public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
     private static final String VELOCITY_INDEX_KEY = CommonTables.SPEED_KEY + KeyManager.INDEXER_KEY;
     private static final String VELOCITY_ROLLERS_KEY = CommonTables.SPEED_KEY + KeyManager.INDEXER_KEY;

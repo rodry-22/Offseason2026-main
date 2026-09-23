@@ -2,11 +2,17 @@ package frc.robot.configuration;
 
 import com.stzteam.mars.builder.Environment;
 import com.stzteam.mars.builder.Environment.RunMode;
+import com.stzteam.mars.builder.Injector;
 import com.stzteam.mars.operator.ControllerOI;
 import com.stzteam.mars.operator.PS5OI;
 import com.stzteam.mars.operator.XboxOI;
 
 import frc.robot.configuration.constants.TunerConstants;
+import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIOFallback;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIOSim;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIOSpark;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
 import frc.robot.modules.swerve.SwerveTelemetry;
 
@@ -27,6 +33,7 @@ public class Manifest {
     public static final ControllerType DRIVER_CONTROLLER = ControllerType.XBOX;
     public static final ControllerType OPERATOR_CONTROLLER = ControllerType.XBOX;
     public static final boolean HAS_DRIVETRAIN = true;
+    public static final boolean HAS_INDEXER = false;
 
     public static class ControlsBuilder {
 
@@ -56,5 +63,10 @@ public class Manifest {
         return drivetrain;
         }
     }
+    public static Indexer buildIndexer() {
+    IndexerIO io =
+        Injector.createIO(HAS_INDEXER, IndexerIOFallback::new, IndexerIOSpark::new, IndexerIOSim::new);
+        return new Indexer(io);
+  }
 
 }
