@@ -1,9 +1,5 @@
 package frc.robot.requests;
-/* 
-import java.io.ObjectInputFilter.Status;
-import java.util.jar.Attributes.Name;
 
-import com.ctre.phoenix6.StatusCode;
 import com.stzteam.features.dictionary.Dictionary.StatusCodes;
 import com.stzteam.features.marsprocessor.CreateCommand;
 import com.stzteam.features.marsprocessor.RequestFactory;
@@ -11,7 +7,6 @@ import com.stzteam.mars.diagnostics.ActionStatus;
 import com.stzteam.mars.requests.Request;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.Voltage;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperInputs;
@@ -90,15 +85,17 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
             this.voltage = volts;
             return this;
         }
-    }
 
-    @Override 
-    public ActionStatus apply(DumperInputs parameters, DumperIO actor){
+        @Override 
+        public ActionStatus apply(DumperInputs parameters, DumperIO actor){
         actor.applyOutput(voltage);
         return ActionStatus.of(
             Dumper.MANUAL_OVERRIDE, StatusCodes.MANUAL_STATUS + StatusCodes.voltsOf(voltage)
         );
     }
+    }
+
+
     
 }
-    */
+

@@ -39,13 +39,12 @@ public class Dumper extends ModularSubsystem<DumperInputs, DumperIO> implements 
         SubsystemBuilder.<DumperInputs, DumperIO>setup()
             .key(KeyManager.DUMPER_KEY)
             .hardware(io, new DumperInputs())
-            .request(IntakeRequestFactory.idle())
+            .request(DumperRequestFactory.idle())
             .telemetry(new DumperTelemetry()));
 
         this.setDefaultCommand(runRequest(() -> DumperRequestFactory.idle()));
       }
 
-    @Override 
     public DumperInputs getState(){
         return inputs;
       }
@@ -64,11 +63,26 @@ public class Dumper extends ModularSubsystem<DumperInputs, DumperIO> implements 
 
         private static final String APPLIED_VOLTS_KEY = CommonTables.APPLIED_KEY + Terminology.VOLTS;
 
-            //NetworkIO.set(KeyManager.DUMPER_KEY, CommonTables.DEGREES_KEY);
+        @Override
+        public void telemeterize(DumperInputs data) {
+
+          
+        NetworkIO.set(KeyManager.DUMPER_KEY, CommonTables.DEGREES_KEY, data.position);
+        NetworkIO.set(KeyManager.DUMPER_KEY, CommonTables.TARGET_KEY, data.TargetAngle);
+        NetworkIO.set(KeyManager.DUMPER_KEY, CommonTables.TIMESTAMP_KEY, data.timestamp);
+        NetworkIO.set(KeyManager.DUMPER_KEY, APPLIED_VOLTS_KEY, data.appliedVolts);
+
+        NetworkIO.set(KeyManager.DUMPER_KEY, "Current", data.current);
+        }
+        
       }
 
-    @Override
-    public void simulationPeriodic() {}
+
+    public Command stop() {
+      throw new UnsupportedOperationException("Unimplemented method 'stop'");
+    }
+
+  
 
 }
-    */
+*/

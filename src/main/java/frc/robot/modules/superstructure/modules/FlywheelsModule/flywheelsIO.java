@@ -1,14 +1,14 @@
 package frc.robot.modules.superstructure.modules.FlywheelsModule;
-/* 
+
 import com.stzteam.features.marsprocessor.Fallback;
 import com.stzteam.features.unitprocessor.Unit;
 import com.stzteam.mars.models.singlemodule.Data;
 import com.stzteam.mars.models.singlemodule.IO;
 
 @Fallback
-public interface flywheelsIO extends IO<flyWheelsInputs> {
+public interface flywheelsIO extends IO<flywheelsIO.flyWheelsInputs> {
     
-    public static class FlyWheelsInputs extends Data<FlyWheelsInputs> {
+    public static class flyWheelsInputs extends Data<flyWheelsInputs> {
 
     @Unit(value = "Volts", group = "FlyWheel")
     public double appliedVolts = 0;
@@ -30,6 +30,6 @@ public interface flywheelsIO extends IO<flyWheelsInputs> {
 
   public void setTargetRPM(@Unit(value = "RPM", group = "FlyWheel") double rpm);
 
-}
 
-*/
+
+}

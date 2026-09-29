@@ -107,7 +107,7 @@ public class DumperIOkraken implements DumperIO{
 
         inputs.timestamp = rotorPosSignal.getTimestamp().getLatency();
 
-        inputs.Current = angulator.getStatorCurrent().getValueAsDouble();
+        inputs.current = angulator.getStatorCurrent().getValueAsDouble();
 
     }
 

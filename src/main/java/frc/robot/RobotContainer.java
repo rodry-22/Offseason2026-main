@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+/* 
+import java.util.jar.Manifest;
 
 import com.stzteam.mars.models.containers.IRobotContainer;
 import com.stzteam.mars.operator.ControllerOI;
@@ -13,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.configuration.Manifest.ControlsBuilder;
 import frc.robot.configuration.Manifest.DrivetrainBuilder;
 import frc.robot.configuration.bindings.DriverBindings;
+import frc.robot.modules.superstructure.composite.Superstructure;
+import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
 import frc.tests.EmptyTest;
 
@@ -21,14 +25,25 @@ public class RobotContainer implements IRobotContainer{
   public final ControllerOI driver;
   public final CommandSwerveDrivetrain drivetrain;
 
+  public final Dumper dumper;
+
+  public final Superstructure superstructure;
+
   public RobotContainer() {
+
     this.driver = ControlsBuilder.buildDriver();
+
     this.drivetrain = DrivetrainBuilder.buildModule();
+
     DriverBindings.create(drivetrain, driver).bind();
+
+    this.dumper = Manifest.buildDumper();
   }
 
   @Override
-  public void updateNodes() {}
+  public void updateNodes() {
+
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
@@ -39,3 +54,5 @@ public class RobotContainer implements IRobotContainer{
     return new EmptyTest();
   }
 }
+
+*/

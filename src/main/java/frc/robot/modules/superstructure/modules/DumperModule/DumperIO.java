@@ -23,7 +23,7 @@ public interface DumperIO extends IO<DumperIO.DumperInputs>{
         @Unit(value = "RPS", group = "Dumper")
         public double VelocityRPS = 0;
 
-        public double Current = 0;
+        public double current = 0;
 
         @Override
         public DumperInputs snapshot(){
