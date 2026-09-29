@@ -1,19 +1,12 @@
 package frc.robot.configuration;
 
-import java.security.PublicKey;
-
-import org.ejml.data.DSubmatrixD1;
-import org.opencv.ml.DTrees;
-
 import com.stzteam.mars.builder.Environment;
 import com.stzteam.mars.builder.Injector;
 import com.stzteam.mars.builder.Environment.RunMode;
-import com.stzteam.mars.builder.Injector;
 import com.stzteam.mars.models.SubsystemBuilder;
 import com.stzteam.mars.operator.ControllerOI;
 import com.stzteam.mars.operator.PS5OI;
 import com.stzteam.mars.operator.XboxOI;
-import com.stzteam.mars.models.SubsystemBuilder;
 
 import frc.robot.configuration.constants.TunerConstants;
 import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
@@ -26,6 +19,7 @@ import frc.robot.modules.superstructure.composite.SuperstructureData;
 import frc.robot.modules.superstructure.composite.SuperstructureIO;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIOFallback;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOSim;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOkraken;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
@@ -53,14 +47,14 @@ public class Manifest {
     public static final boolean HAS_DUMPER = true;
 
     
-
     public static class SuperstructureBuilder {
     public static Superstructure superBuild(
-        Dumper dumper  
-    ) {
+        Dumper dumper,  
+        Indexer indexer
+        ){
 
       SuperstructureIO io =
-          new SuperstructureIO(dumper);
+          new SuperstructureIO(dumper, indexer);
 
         return new Superstructure(SubsystemBuilder.<SuperstructureData, SuperstructureIO>setup()
         .key(KeyManager.SUPERSTRUCTURE_KEY).hardware(io, new SuperstructureData()));
@@ -103,6 +97,7 @@ public class Manifest {
 
     public static Dumper buildDumper(){
         DumperIO io = Injector.createIO(HAS_DUMPER, DumperIOFallback::new, DumperIOkraken::new, DumperIOSim::new);
+        return new Dumper(io);
 
     }
 

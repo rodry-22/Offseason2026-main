@@ -4,6 +4,11 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -11,11 +16,14 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import com.stzteam.forgemini.io.NetworkIO;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -23,6 +31,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.configuration.KeyManager;
+import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.SysIdRoutineManager;
+
 
 
 /**
@@ -37,12 +51,19 @@ public class CommandSwerveDrivetrain extends frc.robot.configuration.constants.T
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    private final Field2d field = new Field2d();
+    public final String limelightName = "limelight";
+
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
+
+    public final SysIdRoutineManager sysManager;
+
+    // tal vez podemos usar y poner los sys en public final SysIdRoutineManager
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -109,7 +130,10 @@ public class CommandSwerveDrivetrain extends frc.robot.configuration.constants.T
     );
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private SysIdRoutine m_sysIdRoutineToApply = null;
+
+    private PathConstraints pathConstraints =
+      new PathConstraints(4.5, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -129,6 +153,21 @@ public class CommandSwerveDrivetrain extends frc.robot.configuration.constants.T
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        LimelightHelpers.SetIMUMode(limelightName, 4); //----> It helps to robot localization and activate advanced configuration. 
+        // It uses mainly the internal gyroscope but also uses sometimes the external gyroscope (pigeon or navx) to correct 
+        // itself from drift 
+        // Como aplicamos las SysId con esta config?
+        this.sysManager = new SysIdRoutineManager(this);
+        this.m_sysIdRoutineToApply = sysManager.getSelected();
+
+        configuerPathPlanner();
+        SmartDashboard.putData("Field", field);
+
+        NetworkIO.set(KeyManager.SWERVE_KEY, "SysID", m_sysIdRoutineToApply.toString());
+
+        this.finder = new PoseFinder(this, pathConstraints);
+
+        
     }
 
     /**
@@ -153,6 +192,15 @@ public class CommandSwerveDrivetrain extends frc.robot.configuration.constants.T
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        LimelightHelpers.SetIMUMode(limelightName, 4); //----> It helps to robot localization and activate advanced configuration. 
+        // It uses mainly the internal gyroscope but also uses sometimes the external gyroscope (pigeon or navx) to correct 
+        // itself from drift 
+        // Como aplicamos las SysId con esta config?
+        this.sysManager = new SysIdRoutineManager(this);
+        this.m_sysIdRoutineToApply = sysManager.getSelected();
+        configuerPathPlanner();
+        NetworkIO.set(KeyManager.SWERVE_KEY, "SysID", m_sysIdRoutineToApply.toString());
+        this.finder = new PoseFinder(this, pathConstraints);
     }
 
     /**
@@ -185,8 +233,23 @@ public class CommandSwerveDrivetrain extends frc.robot.configuration.constants.T
         if (Utils.isSimulation()) {
             startSimThread();
         }
-    }
-
+        LimelightHelpers.SetIMUMode(limelightName, 4); //----> It helps to robot localization and activate advanced configuration. 
+        // It uses mainly the internal gyroscope but also uses sometimes the external gyroscope (pigeon or navx) to correct 
+        // itself from drift 
+        // Como aplicamos las SysId con esta config?
+        this.sysManager = new SysIdRoutineManager(this);
+        this.m_sysIdRoutineToApply = sysManager.getSelected();
+        configuerPathPlanner();
+                NetworkIO.set(KeyManager.SWERVE_KEY, "SysID", m_sysIdRoutineToApply.toString());
+                this.finder = new PoseFinder(this, pathConstraints);
+            }
+        
+            private void configuerPathPlanner() {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'configuerPathPlanner'");
+            }
+        
+            //Hace falta setsysroutine y configurar el pathplanner
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *

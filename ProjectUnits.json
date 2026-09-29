@@ -1,4 +1,12 @@
 {
+  "FlyWheel": {
+    "flywheelsIO.setTargetRPM(rpm)": "RPM",
+    "FlyWheelsInputs.appliedVolts": "Volts",
+    "flywheelsIO.setSpeed(speed)": "DutyCycle",
+    "FlyWheelsInputs.velocityRPM": "RPM",
+    "flywheelsIO.applyOutput(volts)": "Volts",
+    "FlyWheelsInputs.targetRPM": "RPM"
+  },
   "Indexer": {
     "IndexerIO.applyRollers(volts)": "Volts",
     "IndexerInputs.indexRPS": "RPS",

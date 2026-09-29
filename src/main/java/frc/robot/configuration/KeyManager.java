@@ -17,6 +17,7 @@ public class KeyManager {
     public static final String DUMPER_KEY = "Dumper";
     public static final String INDEXER_KEY = "Indexer";
     public static final String INDEX_KEY = "Index";
+    public static final String FlYWHEELS_KEY = "flywheels";
 
     public static final String SUPERSTRUCTURE_KEY = "Superstructure";
     

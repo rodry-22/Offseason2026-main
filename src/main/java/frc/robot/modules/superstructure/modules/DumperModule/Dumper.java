@@ -1,6 +1,6 @@
 package frc.robot.modules.superstructure.modules.DumperModule;
 
-import org.opencv.dnn.Net;
+import java.util.function.Supplier;
 
 import com.stzteam.features.dictionary.Dictionary.CommonTables;
 import com.stzteam.features.dictionary.Dictionary.CommonTables.Terminology;
@@ -16,6 +16,9 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.configuration.KeyManager;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperInputs;
+import frc.robot.requests.DumperCommands;
+import frc.robot.requests.DumperRequest;
+import frc.robot.requests.DumperRequestFactory;
 
 public class Dumper extends ModularSubsystem<DumperInputs, DumperIO> implements DumperCommands{
 
@@ -77,12 +80,11 @@ public class Dumper extends ModularSubsystem<DumperInputs, DumperIO> implements 
         
       }
 
-
-    public Command stop() {
-      throw new UnsupportedOperationException("Unimplemented method 'stop'");
+    @Override
+    public Command setControl(Supplier<DumperRequest> request) {
+      return setControl(request);    
     }
 
-  
 
 }
 

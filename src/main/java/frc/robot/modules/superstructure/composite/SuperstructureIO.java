@@ -3,24 +3,26 @@ package frc.robot.modules.superstructure.composite;
 import com.stzteam.mars.models.multimodules.CompositeIO;
 
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
+import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
 
 public class SuperstructureIO extends CompositeIO<SuperstructureData>{
 
     public SuperstructureIO (
-        Dumper dumper
+        Dumper dumper,
         //Intake intake, 
-        //Index index
+        Indexer indexer
         //FlyWheel flywheelShooter,
         //FlyWheel flywheelsIntake
         ){
 
             registerChild(dumper);
+            registerChild(indexer);
+
         }
 
+
     @Override 
-    public void updateInputs(SuperstructureData inputs){
-        
-    }
+    public void updateInputs(SuperstructureData inputs){}
 
     
 }

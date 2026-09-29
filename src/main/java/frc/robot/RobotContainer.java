@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-/* 
+
 import java.util.jar.Manifest;
 
 import com.stzteam.mars.models.containers.IRobotContainer;
@@ -17,6 +17,7 @@ import frc.robot.configuration.Manifest.DrivetrainBuilder;
 import frc.robot.configuration.bindings.DriverBindings;
 import frc.robot.modules.superstructure.composite.Superstructure;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
+import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
 import frc.tests.EmptyTest;
 
@@ -26,6 +27,7 @@ public class RobotContainer implements IRobotContainer{
   public final CommandSwerveDrivetrain drivetrain;
 
   public final Dumper dumper;
+  public final Indexer indexer;
 
   public final Superstructure superstructure;
 
@@ -38,6 +40,8 @@ public class RobotContainer implements IRobotContainer{
     DriverBindings.create(drivetrain, driver).bind();
 
     this.dumper = Manifest.buildDumper();
+    this.indexer = Manifest.buildIndexer();
+
   }
 
   @Override
@@ -55,4 +59,3 @@ public class RobotContainer implements IRobotContainer{
   }
 }
 
-*/

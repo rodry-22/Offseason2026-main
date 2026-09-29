@@ -55,4 +55,3 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
         }
     }
 }
-    
