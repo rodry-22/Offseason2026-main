@@ -1,5 +1,5 @@
 package frc.robot.modules.superstructure.composite;
-/* 
+
 import java.nio.channels.ClosedByInterruptException;
 
 import com.revrobotics.servohub.config.ServoChannelConfig.PulseRange;
@@ -42,4 +42,3 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
     return inputs;
   }
 }
-*/
