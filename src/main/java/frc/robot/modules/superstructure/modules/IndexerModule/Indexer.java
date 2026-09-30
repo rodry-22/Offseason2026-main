@@ -42,8 +42,8 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
         @Override
         public void telemeterize(IndexerInputs data) {
             
-            NetworkIO.set(KeyManager.INDEXER_KEY, VELOCITY_INDEX_KEY, data.indexRPS);
-            NetworkIO.set(KeyManager.INDEXER_KEY, VELOCITY_ROLLERS_KEY, data.rollerRPS);
+            NetworkIO.set(KeyManager.INDEXER_KEY, VELOCITY_INDEX_KEY, data.indexRPM);
+            NetworkIO.set(KeyManager.INDEXER_KEY, VELOCITY_ROLLERS_KEY, data.rollerRPM);
 
             NetworkIO.set(KeyManager.INDEXER_KEY, VOLTAGE_INDEX_KEY, data.indexVolts);
             NetworkIO.set(KeyManager.INDEXER_KEY, VOLTAGE_ROLL_KEY, data.rollerVolts);
