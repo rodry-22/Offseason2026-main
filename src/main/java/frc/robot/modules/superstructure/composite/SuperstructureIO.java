@@ -11,21 +11,16 @@ public class SuperstructureIO extends CompositeIO<SuperstructureData>{
     public SuperstructureIO (
         Dumper dumper,
         //Intake intake, 
-        Indexer indexer
-        //FlyWheel flywheelShooter,
-        //FlyWheel flywheelsIntake
-        ){
+        Indexer indexer,
+        flywheels flywheelShooter,
+        flywheels flywheelsIntake){
 
             registerChild(dumper);
             registerChild(indexer);
+            registerChild(flywheelShooter);
+            registerChild(flywheelShooter);
 
         }
-
-
-    public SuperstructureIO(Dumper dumper, Indexer indexer, flywheels flywheels, flywheels flywheelsShooter) {
-        //TODO Auto-generated constructor stub
-    }
-
 
     @Override 
     public void updateInputs(SuperstructureData inputs){}

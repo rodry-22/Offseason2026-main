@@ -2,8 +2,10 @@ package frc.robot.configuration.bindings;
 
 import com.stzteam.mars.operator.ControllerOI;
 
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.modules.superstructure.composite.Superstructure;
+import frc.robot.requests.IndexerRequestFactory;
 
 import com.stzteam.mars.models.containers.Binding;
 
@@ -42,7 +44,14 @@ public class OperatorBindings implements Binding {
           new Trigger(() -> Math.abs(rightStick.y().getAsDouble()) > DEADBAND);
       Trigger leftStickXTrigger = new Trigger(() -> Math.abs(leftStick.x().getAsDouble()) > DEADBAND);
       Trigger leftStickYTrigger = new Trigger(() -> Math.abs(leftStick.y().getAsDouble()) > DEADBAND);
-            
+       
+      
+      buttons.top().whileTrue(superstructure.getIndexer().setControl(() -> IndexerRequestFactory.setRollers().withRPS(1000)));
    }
+
+
+          
+
+
 
 }

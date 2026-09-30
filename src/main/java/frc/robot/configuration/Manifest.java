@@ -21,7 +21,7 @@ import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOFallback;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOSim;
-import frc.robot.modules.superstructure.modules.DumperModule.DumperIOkraken;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIOSpark;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.FlyWheelIOKrakenIntake;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIO;
@@ -109,7 +109,7 @@ public class Manifest {
       }
     
         public static Dumper buildDumper(){
-            DumperIO io = Injector.createIO(HAS_DUMPER, DumperIOFallback::new, DumperIOkraken::new, DumperIOSim::new);
+            DumperIO io = Injector.createIO(HAS_DUMPER, DumperIOFallback::new, DumperIOSpark::new, DumperIOSim::new);
             return new Dumper(io);
     
         }
