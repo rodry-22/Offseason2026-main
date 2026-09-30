@@ -1,12 +1,8 @@
 package frc.robot.modules.superstructure.composite;
 
-
-import java.security.Key;
-
 import com.stzteam.mars.models.SubsystemBuilder;
 import com.stzteam.mars.models.multimodules.CompositeSubsystem;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.configuration.KeyManager;
@@ -82,8 +78,8 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
     //Intake intake = getIntake();
 
     return Commands.parallel(
-        dumper.sotop(),
-        //index.sotop(),
+        dumper.stop(),
+        index.stop(),
         flywheel.runRequest(() -> FlywheelsRequestFactory.idelIntake()),
         flywheelout.runRequest(() -> FlywheelsRequestFactory.idleOutake())
 
@@ -91,12 +87,11 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
     );
     
  }
-/*
-  @Override
+
   public SuperstructureData getState() {
     return inputs;
   }
-*/
+
 
 @Override
   public void absolutePeriodic(SuperstructureData inputs) {

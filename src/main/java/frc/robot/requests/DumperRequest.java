@@ -17,7 +17,7 @@ import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE
 @RequestFactory
 public interface DumperRequest extends Request<DumperInputs, DumperIO>{
 
-    @CreateCommand(name = "sotop")
+    @CreateCommand(name = "stop")
     public static class Idle implements DumperRequest{
         @Override
         public ActionStatus apply(DumperInputs data, DumperIO actor) {

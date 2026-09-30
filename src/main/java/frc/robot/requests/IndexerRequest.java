@@ -8,6 +8,10 @@ import com.stzteam.mars.diagnostics.StatusColorCode.Severity;
 import com.stzteam.mars.requests.Request;
 
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIO;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperInputs;
+import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
 import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO;
 import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO.IndexerInputs;
 
@@ -28,10 +32,19 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
     public static ModuleColorCode PROCESSING=
         ModuleColorCode.solid("PROCESSING", Severity.OK, Color.kAquamarine, "Rollers and Indexer working");
 
+        @CreateCommand(name = "stop")
+         public static class Idle implements IndexerRequest{
+        @Override
+        public ActionStatus apply(IndexerInputs data, IndexerIO actor) {
+            actor.stopAll();
+            return ActionStatus.of(IDLE, "Idle");
+        }
+    }
+
      @CreateCommand(name = "idleIndexer")
      public static class idleIndexer implements IndexerRequest{
         @Override
-        public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
+        public ActionStatus apply(IndexerInputs data, IndexerIO actor) {
             actor.stopAll();
             return ActionStatus.of(IDLE, "Indexer is idle");
         }
