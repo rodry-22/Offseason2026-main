@@ -14,8 +14,8 @@ public class IndexerIOSim implements IndexerIO{
     
     private double indexVolts = 0;
     private double rollerVolts = 0;
-    private double indexRPS = 0; //not sure if i should use simIndexRPS
-    private double rollerRPS = 0;
+    private double indexRPM = 0; //not sure if i should use simIndexRPM
+    private double rollerRPM = 0;
 
     public IndexerIOSim() {
 
@@ -45,14 +45,14 @@ public class IndexerIOSim implements IndexerIO{
         simIndex.setInputVoltage(indexVolts);
         simRoller.setInputVoltage(rollerVolts);
         
-        inputs.indexRPS = simIndex.getAngularVelocityRPM() / 60.0;
-        inputs.rollerRPS = simRoller.getAngularVelocityRPM() / 60.0;
+        inputs.indexRPM = simIndex.getAngularVelocityRPM();
+        inputs.rollerRPM = simRoller.getAngularVelocityRPM();
 
         simIndex.setAngularVelocity(
-            Units.rotationsPerMinuteToRadiansPerSecond(indexRPS*60)); //in radians/second}
+            Units.rotationsPerMinuteToRadiansPerSecond(indexRPM)); //in radians/second
 
         simRoller.setAngularVelocity(
-            Units.radiansPerSecondToRotationsPerMinute(rollerRPS*60)); //in radians/second
+            Units.radiansPerSecondToRotationsPerMinute(rollerRPM)); //in radians/second
 
     }
     @Override
@@ -64,21 +64,21 @@ public class IndexerIOSim implements IndexerIO{
         indexVolts = volts;
     }
     @Override
-    public void setRollers(double RPS) {
-        rollerRPS = RPS;
+    public void setRollers(double RPM) {
+        rollerRPM = RPM;
         
     }
     @Override
-    public void setIndex(double RPS) {
-        indexRPS = RPS;
+    public void setIndex(double RPM) {
+        indexRPM = RPM;
     }
     @Override
     public void stopRollers() {
-        rollerRPS = 0;
+        rollerRPM = 0;
     }
     @Override
     public void stopIndex() {
-        indexRPS = 0;
+        indexRPM = 0;
     }
     @Override
     public void stopAll() {
