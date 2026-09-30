@@ -56,8 +56,4 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
     }
 
 
-public Command stop() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'stop'");
-}
 }

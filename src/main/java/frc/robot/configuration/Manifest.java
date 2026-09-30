@@ -112,9 +112,9 @@ public class Manifest {
     
         }
     
-        public static flywheels buildFlywheels(){
+        public static flywheels buildFlywheelsShooter(){
           flywheelsIO io = Injector.createIO(HAS_SHOOTER_WHELLS, flywheelsIOFallback::new, flywheelsIOkrakenDumper::new, flywheelsIOSim::new);
-          return new flywheels(io, KeyManager.FLYWHEELS_DUMPER_KEY, idleMode.outakeIDLE);
+          return new flywheels(io, KeyManager.FLYWHEELS_SHOOTER_KEY, idleMode.outakeIDLE);
         }
     
         public static flywheels buildFlywheelIntake() {

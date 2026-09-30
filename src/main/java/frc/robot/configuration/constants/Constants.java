@@ -1,8 +1,11 @@
 package frc.robot.configuration.constants;
 
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+//import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public class Constants {
+
+    public static final double FLYWHEEL_TOLERANCE = 34.72;
+
 
     /* 
     public static final InterpolatingDoubleTreeMap INTERPOLATION_MAP =
