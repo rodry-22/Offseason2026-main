@@ -31,15 +31,12 @@ public class IndexerIOSpark implements IndexerIO {
         rollController = rollMotor.getClosedLoopController();
         indexController = indexMotor.getClosedLoopController();
 
-        //TODO: Gear done, and RPS done. More tuning may be needed.
         rollConfig
             .idleMode(IdleMode.kCoast)
-            .encoder.velocityConversionFactor(1/60)
-                    .positionConversionFactor(1/IndexerConstants.indexRatio);//TODO:@Units may be doing this, must look into
+            .encoder.positionConversionFactor(1/IndexerConstants.indexRatio);
         indexConfig
             .idleMode(IdleMode.kCoast)
-            .encoder.velocityConversionFactor(1/60)
-                    .positionConversionFactor(1/IndexerConstants.indexRatio); 
+            .encoder.positionConversionFactor(1/IndexerConstants.indexRatio); 
         
 
         rollMotor.configure(rollConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -49,10 +46,10 @@ public class IndexerIOSpark implements IndexerIO {
     @Override
 	public void updateInputs(IndexerInputs inputs) {
         inputs.rollerVolts = rollMotor.getAppliedOutput() * rollMotor.getBusVoltage();
-        inputs.rollerRPS = rollMotor.getEncoder().getVelocity();
+        inputs.rollerRPM = rollMotor.getEncoder().getVelocity();
         
         inputs.indexVolts = indexMotor.getAppliedOutput() * indexMotor.getBusVoltage();
-        inputs.indexRPS = indexMotor.getEncoder().getVelocity();
+        inputs.indexRPM = indexMotor.getEncoder().getVelocity();
 	}
 
     @Override
@@ -66,13 +63,13 @@ public class IndexerIOSpark implements IndexerIO {
     }
     
     @Override
-    public void setRollers(double RPS) {
-        rollController.setSetpoint(RPS, ControlType.kVelocity);
+    public void setRollers(double RPM) {
+        rollController.setSetpoint(RPM, ControlType.kVelocity);
     }
         
     @Override
-    public void setIndex(double RPS) {
-        indexController.setSetpoint(RPS, ControlType.kVelocity);
+    public void setIndex(double RPM) {
+        indexController.setSetpoint(RPM, ControlType.kVelocity);
     }
     
 

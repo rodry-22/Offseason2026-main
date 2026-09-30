@@ -12,49 +12,49 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
         @Unit(value = "Volts", group = "Indexer")
         public double rollerVolts = 0;
 
-        @Unit(value = "RPS", group = "Indexer")
-        public double rollerRPS = 0;
+        @Unit(value = "RPM", group = "Indexer")
+        public double rollerRPM = 0;
 
         @Unit(value = "Volts", group = "Indexer")
         public double indexVolts = 0;
 
-        @Unit(value = "RPS", group = "Indexer")
-        public double indexRPS = 0;
+        @Unit(value = "RPM", group = "Indexer")
+        public double indexRPM = 0;
 
 
         @Override
         public IndexerInputs snapshot() {
             IndexerInputs clone = new IndexerInputs();
             clone.rollerVolts = this.rollerVolts;
-            clone.rollerRPS = this.rollerRPS;
+            clone.rollerRPM = this.rollerRPM;
             clone.indexVolts = this.indexVolts;
-            clone.indexRPS = this.indexRPS;
+            clone.indexRPM = this.indexRPM;
             return clone;
         }
     }
 
-    public void applyRollers(@Unit(value = "Volts", group = "Indexer") double volts);
+    public void applyRollers(@Unit(value = "Volts", group = "Indexer")double volts);
     /**
      * Sets the voltage of the rollers motor.
      * @param volts The voltage to apply to the rollers motor.
     */
 
-    public void applyIndex(@Unit(value = "Volts", group = "Indexer") double volts);
+    public void applyIndex(@Unit(value = "Volts", group = "Indexer")double volts);
     /**
      * Sets the voltage of the index motor.
      * @param volts The voltage to apply to the indexer motor.
      */
 
-    public void setRollers(@Unit(value = "RPS", group = "Indexer") double RPS);
+    public void setRollers(@Unit(value = "RPM", group = "Indexer")double RPM);
     /**
-     * Sets the rollers to a given RPS with a closed loop controller.
-     * @param RPS The desired RPS.
+     * Sets the rollers to a given RPM with a closed loop controller.
+     * @param RPM The desired RPM.
      */
 
-    public void setIndex(@Unit(value = "RPS", group = "Indexer") double RPS);
+    public void setIndex(@Unit(value = "RPM", group = "Indexer")double RPM);
     /**
-     * Sets the index to a given RPS with a closed loop controller.
-     * @param RPS The desired RPS.
+     * Sets the index to a given RPM with a closed loop controller.
+     * @param RPM The desired RPM.
      */
 
     public void stopRollers();
@@ -68,6 +68,6 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
 
     public void stopAll();
     /**
-     * Stops the the indexer system (both roller and indexer)
+     * Stops the the indexer system (both roller and index)
      */
 }
