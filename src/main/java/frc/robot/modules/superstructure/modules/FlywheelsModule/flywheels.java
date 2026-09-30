@@ -14,10 +14,10 @@ import com.stzteam.mars.models.singlemodule.ModularSubsystem;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.configuration.KeyManager;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIO.FlyWheelsInputs;
 import frc.robot.requests.FlywheelsCommands;
 import frc.robot.requests.FlywheelsRequest;
+import frc.robot.requests.FlywheelsRequestFactory;
 
 public class flywheels extends ModularSubsystem<FlyWheelsInputs, flywheelsIO> implements FlywheelsCommands{
 
@@ -51,7 +51,7 @@ public class flywheels extends ModularSubsystem<FlyWheelsInputs, flywheelsIO> im
             SubsystemBuilder.<FlyWheelsInputs, flywheelsIO>setup()
             .key(key)
             .hardware(io, new FlyWheelsInputs())
-            .request(FlyWheelRequestFactory.IdelIntake())
+            .request(FlywheelsRequestFactory.idelIntake())
             .telemetry(new flywheelsTelemetry(key))
         );
 
@@ -60,13 +60,13 @@ public class flywheels extends ModularSubsystem<FlyWheelsInputs, flywheelsIO> im
 
 
         if (mode == idleMode.intakeIDLE) {
-            this.setDefaultCommand(runRequest(() -> FlyWheelRequestFactory.idleIntake()));
+            this.setDefaultCommand(runRequest(() -> FlywheelsRequestFactory.idelIntake()));
         } else {
-            this.setDefaultCommand(runRequest(() -> FlyWheelRequestFactory.idleOutake()));
+            this.setDefaultCommand(runRequest(() -> FlywheelsRequestFactory.idleOutake()));
         }
     }
 
-    @Override
+
     public FlyWheelsInputs getState() {
         return inputs;
     }

@@ -22,7 +22,7 @@ public class SuperstructureIO extends CompositeIO<SuperstructureData>{
         }
 
 
-    public SuperstructureIO(Dumper dumper, Indexer indexer, flywheels flywheels) {
+    public SuperstructureIO(Dumper dumper, Indexer indexer, flywheels flywheels, flywheels flywheelsShooter) {
         //TODO Auto-generated constructor stub
     }
 

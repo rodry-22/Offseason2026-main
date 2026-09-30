@@ -22,11 +22,12 @@ import frc.robot.modules.superstructure.modules.DumperModule.DumperIO;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOFallback;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOSim;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOkraken;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.FlyWheelIOKrakenIntake;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIO;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIOFallback;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIOSim;
-import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIOkrakenDumper;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIOkrakenShooter;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels.idleMode;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
 import frc.robot.modules.swerve.SwerveTelemetry;
@@ -61,11 +62,12 @@ public class Manifest {
         public static Superstructure superBuild(
             Dumper dumper,  
             Indexer indexer,
-            flywheels flywheels
+            flywheels flywheelsIntake,
+            flywheels flywheelsShooter
             ){
     
           SuperstructureIO io =
-              new SuperstructureIO(dumper, indexer, flywheels);
+              new SuperstructureIO(dumper, indexer, flywheelsIntake, flywheelsShooter);
     
             return new Superstructure(SubsystemBuilder.<SuperstructureData, SuperstructureIO>setup()
             .key(KeyManager.SUPERSTRUCTURE_KEY).hardware(io, new SuperstructureData()));
@@ -113,13 +115,13 @@ public class Manifest {
         }
     
         public static flywheels buildFlywheelsShooter(){
-          flywheelsIO io = Injector.createIO(HAS_SHOOTER_WHELLS, flywheelsIOFallback::new, flywheelsIOkrakenDumper::new, flywheelsIOSim::new);
+          flywheelsIO io = Injector.createIO(HAS_SHOOTER_WHELLS, flywheelsIOFallback::new, flywheelsIOkrakenShooter::new, flywheelsIOSim::new);
           return new flywheels(io, KeyManager.FLYWHEELS_SHOOTER_KEY, idleMode.outakeIDLE);
         }
     
-        public static flywheels buildFlywheelIntake() {
+        public static flywheels buildFlywheelsIntake() {
         flywheelsIO io =
-            Injector.createIO(HAS_INTAKE_WHELLS, FlyWheelIOFallback::new, FlyWheelIOKrakenIntake::new, FlyWheelIOSim::new);
+            Injector.createIO(HAS_INTAKE_WHELLS, flywheelsIOFallback::new, FlyWheelIOKrakenIntake::new, flywheelsIOSim::new);
 
     return new flywheels(io, KeyManager.FLYWHEELS_INTAKE_KEY, idleMode.intakeIDLE);
   }

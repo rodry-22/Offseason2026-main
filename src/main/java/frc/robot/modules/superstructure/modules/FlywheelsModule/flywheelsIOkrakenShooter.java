@@ -10,7 +10,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants;
 
-public class flywheelsIOkrakenDumper implements flywheelsIO {
+public class flywheelsIOkrakenShooter implements flywheelsIO {
 
     private TalonFX leaderShooter, followerShooter;
     private TalonFXConfiguration leaderConfig, followerConfig;
@@ -19,7 +19,7 @@ public class flywheelsIOkrakenDumper implements flywheelsIO {
     private VelocityVoltage velocityRequest;
     private double velocityTarget;
 
-    public flywheelsIOkrakenDumper(){
+    public flywheelsIOkrakenShooter(){
         leaderShooter = new TalonFX(shooterWheelsConstants.shooterLeaderID, CANBus.roboRIO());
         followerShooter = new TalonFX(shooterWheelsConstants.shooterFollowerID, CANBus.roboRIO());
 

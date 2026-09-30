@@ -16,9 +16,13 @@ import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
 import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
 import frc.robot.requests.DumperRequestFactory;
+import frc.robot.requests.FlywheelsRequestFactory;
 import frc.robot.requests.IndexerRequestFactory;
 
 public class Superstructure extends CompositeSubsystem<SuperstructureData, SuperstructureIO>{
+
+    private static final double intakeVolts = -5;
+
 
     public Superstructure(SubsystemBuilder<SuperstructureData, SuperstructureIO> builder){
         super(builder);
@@ -52,31 +56,37 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
         Commands.parallel(
                 flywheelShooter.runRequest(
                     () ->
-                        FlyWheelRequestFactory.setRPM()
+                        FlywheelsRequestFactory.setRPM()
                             .toRPM(shooterRPM)
-                            .withTolerance(Constants.FLYWHEEL_TOLERANCE)),
+                            ),
                 dumper.setControl(
                     () -> DumperRequestFactory.setAngle().withAngle(armAngle).withMode(DumperMODE.kFRONT)))
-            .until(() -> flywheelShooter.isAtTarget(Constants.FLYWHEEL_TOLERANCE)),
+                    .until(() -> flywheelShooter.isAtTarget(Constants.FLYWHEEL_TOLERANCE)),
         Commands.parallel(
-            index.setControl(
-                () -> IndexerRequestFactory.moveVoltage().withRollers(12).withIndex(12)),
-            intakeWheels.setControl(
-                () -> FlyWheelRequestFactory.moveVoltage().withVolts(intakeVolts))));
+                index.setControl(() -> IndexerRequestFactory.setRollers().withRPS(shooterRPM))),
+                //index.setControl(
+                 // () -> IndexerRequestFactory.moveVoltage().withRollers(12).withIndex(12)),
+
+                intakeWheels.setControl(
+                  ()-> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)));
+                
   }
 
 
     public Command stopAll() {
 
     Dumper dumper = getDumper();
-    //FlyWheel flywheel = getFlyWheelsIntake();
-    //FlyWheel flywheelout = getFlywheelShooter();
+    flywheels flywheel = getFlywheelsIntake();
+    flywheels flywheelout = getFlywheelsShooter();
     Indexer index = getIndexer();
     //Intake intake = getIntake();
 
     return Commands.parallel(
         dumper.sotop(),
-        index.stop()
+        //index.sotop(),
+        flywheel.runRequest(() -> FlywheelsRequestFactory.idelIntake()),
+        flywheelout.runRequest(() -> FlywheelsRequestFactory.idleOutake())
+
         
     );
     

@@ -1,5 +1,7 @@
 package frc.robot.configuration.constants.moduleconstants;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+
 public class flywheelsConstants {
     
 
@@ -35,6 +37,14 @@ public class flywheelsConstants {
         public static final double kGearing = 1;
         public static final double kMOI = 0.002;
         //sim
+
+        public class IntakeWheelsConstants {
+        public static final int IntakeWheels_ID = 14;
+
+        public static InvertedValue invertedValue = InvertedValue.CounterClockwise_Positive;
+        public static double StatorCurrentLimit = 40;
+        public static double SupplyCurrentLimit = 60;
+  }
 
         
 

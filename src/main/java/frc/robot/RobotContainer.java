@@ -30,7 +30,9 @@ public class RobotContainer implements IRobotContainer{
 
   public final Dumper dumper;
   public final Indexer indexer;
-  public final flywheels flywheels;
+  public final flywheels flywheelsIntake;
+  public final flywheels flywheelsShooter;
+
 
   public final Superstructure superstructure;
 
@@ -46,12 +48,15 @@ public class RobotContainer implements IRobotContainer{
 
     this.dumper = Manifest.buildDumper();
     this.indexer = Manifest.buildIndexer();
-    this.flywheels = Manifest.buildFlywheels();
+    this.flywheelsIntake = Manifest.buildFlywheelsIntake();
+    this.flywheelsShooter = Manifest.buildFlywheelsShooter();
+
 
     this.superstructure = SuperstructureBuilder.superBuild(
       this.dumper,
       this.indexer,
-      this.flywheels
+      this.flywheelsIntake,
+      this.flywheelsShooter
     );
 
   }

@@ -26,11 +26,6 @@ public class Indexer extends ModularSubsystem<IndexerInputs, IndexerIO> implemen
         setDefaultCommand(runRequest(() -> new IndexerRequest.idleIndexer()));
     }
     
-    
-    @Override
-    public Command setControl(Supplier<IndexerRequest> request) {
-        return runRequest(request);
-    }
 
     @Override
     public void absolutePeriodic(IndexerInputs inputs) {}
@@ -54,6 +49,13 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
             NetworkIO.set(KeyManager.INDEXER_KEY, VOLTAGE_ROLL_KEY, data.rollerVolts);
         }
     }
+
+
+public Command setControl(Supplier<IndexerRequest> request) {
+    return runRequest(request);
+
+}
+
 
 
 }
