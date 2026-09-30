@@ -75,8 +75,7 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
       Indexer index = getIndexer();
 
        return Commands.parallel(
-        index.setControl(() -> IndexerRequest.setRollers().));
-
+        index.setControl(() -> IndexerRequestFactory.setRollers().withRPS(intakeVolts)));
     }
 
 
