@@ -8,8 +8,13 @@ import com.stzteam.mars.diagnostics.StatusColorCode.Severity;
 import com.stzteam.mars.requests.Request;
 
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.modules.superstructure.modules.indexerModule.IndexerIO;
-import frc.robot.modules.superstructure.modules.indexerModule.IndexerIO.IndexerInputs;
+import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIO;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperInputs;
+import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO;
+import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO.IndexerInputs;
+
 
 @RequestFactory
 public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
@@ -17,35 +22,44 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
     public static ModuleColorCode IDLE =
         ModuleColorCode.solid("IDLE", Severity.OK, Color.kBlueViolet, "Indexer is idle");
     public static ModuleColorCode INDEXING_VOLTS=
-        ModuleColorCode.solid("INDEXING_VOLTS", Severity.OK, Color.kSteelBlue, "Working index"); //TODO: find a good name. Subsytem is called the same and it's confusing
-    public static ModuleColorCode INDEXING_RPS=
-        ModuleColorCode.solid("INDEXING_RPS", Severity.OK, Color.kSteelBlue, "Working index");
+        ModuleColorCode.solid("INDEXING_VOLTS", Severity.OK, Color.kSteelBlue, "Working index");
+    public static ModuleColorCode INDEXING_RPM=
+        ModuleColorCode.solid("INDEXING_RPM", Severity.OK, Color.kSteelBlue, "Working index");
     public static ModuleColorCode ROLLING_VOLTS=
         ModuleColorCode.solid("ROLLING_VOLTS", Severity.OK, Color.kAquamarine, "Working rollers");
-    public static ModuleColorCode ROLLING_RPS=
-        ModuleColorCode.solid("ROLLING_RPS", Severity.OK, Color.kAquamarine, "Working rollers");
+    public static ModuleColorCode ROLLING_RPM=
+        ModuleColorCode.solid("ROLLING_RPM", Severity.OK, Color.kAquamarine, "Working rollers");
     public static ModuleColorCode PROCESSING=
         ModuleColorCode.solid("PROCESSING", Severity.OK, Color.kAquamarine, "Rollers and Indexer working");
 
-     @CreateCommand(name = "idle")
-     public static class Idle implements IndexerRequest{
+        @CreateCommand(name = "stop")
+         public static class Idle implements IndexerRequest{
         @Override
-        public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
+        public ActionStatus apply(IndexerInputs data, IndexerIO actor) {
+            actor.stopAll();
+            return ActionStatus.of(IDLE, "Idle");
+        }
+    }
+
+     @CreateCommand(name = "idleIndexer")
+     public static class idleIndexer implements IndexerRequest{
+        @Override
+        public ActionStatus apply(IndexerInputs data, IndexerIO actor) {
             actor.stopAll();
             return ActionStatus.of(IDLE, "Indexer is idle");
         }
     }
-    // }
+    
     @CreateCommand(name = "setRollers")
     public static class setRollers implements IndexerRequest{
         public double m_volts = 0;
-        public double RPS = 0;
+        public double RPM = 0;
         public setRollers withVolts(double volts){
             m_volts = volts;
-            return this;//TODO: don't think it should be "return this", bc concatenation
+            return this;
         }
-        public setRollers withRPS(double RPS){
-            this.RPS = RPS;
+        public setRollers withRPM(double RPM){
+            this.RPM = RPM;
             return this;
         }
         @Override
@@ -53,9 +67,9 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
             if(m_volts != 0){
                 actor.applyRollers(m_volts);
                 return ActionStatus.of(ROLLING_VOLTS, "Only rollers voltage");
-            } else if(RPS != 0){
-                actor.setRollers(RPS);
-                return ActionStatus.of(ROLLING_RPS, "Only rollers RPS");
+            } else if(RPM != 0){
+                actor.setRollers(RPM);
+                return ActionStatus.of(ROLLING_RPM, "Only rollers RPM");
             } else {
                 actor.stopRollers();
                 return ActionStatus.of(IDLE, "Indexer is idle");
@@ -66,13 +80,13 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
     @CreateCommand(name = "setIndex")
     public static class setIndex implements IndexerRequest{
         public double m_volts = 0;
-        public double RPS = 0;
+        public double RPM = 0;
         public setIndex withVolts(double volts){
             m_volts = volts;
             return this;
             }
-        public setIndex withRPS(double RPS){
-            this.RPS = RPS;
+        public setIndex withRPM(double RPM){
+            this.RPM = RPM;
             return this;
             }
         @Override
@@ -80,9 +94,9 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
             if(m_volts != 0){
                 actor.applyIndex(m_volts);
                 return ActionStatus.of(INDEXING_VOLTS, "Only index voltage");
-            } else if(RPS != 0){
-                actor.setIndex(RPS);
-                return ActionStatus.of(INDEXING_RPS, "Only index RPS");
+            } else if(RPM != 0){
+                actor.setIndex(RPM);
+                return ActionStatus.of(INDEXING_RPM, "Only index RPM");
             } else {
                 actor.stopIndex();
                 return ActionStatus.of(IDLE, "Indexer is idle");
@@ -92,13 +106,13 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
         //  @CreateCommand(name = "processing")
         //  public static class Processing implements IndexerRequest{
         //     public double m_volts = 0;
-        //     public double m_RPS = 0;
+        //     public double m_RPM = 0;
         //         public Processing withVolts(double volts){
         //             m_volts = volts;
         //             return this;
         //     }
-        //         public Processing withRPS(double RPS){
-        //             m_RPS = RPS;
+        //         public Processing withRPM(double RPM){
+        //             m_RPM = RPM;
         //             return this;
         //     }
         //     @Override
@@ -106,8 +120,8 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
         //     if(m_volts != 0){
         //         actor.applyIndex(m_volts);
         //         return ActionStatus.of(PROCESSING, "Rollers and Index working");
-        //     } else if(m_RPS != 0){
-        //         actor.setIndex(m_RPS);
+        //     } else if(m_RPM != 0){
+        //         actor.setIndex(m_RPM);
         //         return ActionStatus.of(PROCESSING, "Rollers and Index working");
         //     } else {
         //         actor.stopAll();

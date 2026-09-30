@@ -10,6 +10,7 @@ public class SwerveConstants {
 
   public static final double MaxSpeed = SwerveRequestFactory.MaxSpeed;
   public static final double MaxAngularRate = SwerveRequestFactory.MaxAngularRate;
+  
 
   public static final double crossMovementSpeed = 0.5;
 }

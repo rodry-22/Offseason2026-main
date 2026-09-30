@@ -1,22 +1,21 @@
 {
+  "FlyWheel": {
+    "flywheelsIO.setTargetRPM(rpm)": "RPM",
+    "FlyWheelsInputs.appliedVolts": "Volts",
+    "flywheelsIO.setSpeed(speed)": "DutyCycle",
+    "FlyWheelsInputs.velocityRPM": "RPM",
+    "flywheelsIO.applyOutput(volts)": "Volts",
+    "FlyWheelsInputs.targetRPM": "RPM"
+  },
   "Indexer": {
     "IndexerIO.applyRollers(volts)": "Volts",
-    "IndexerInputs.indexRPS": "RPS",
     "IndexerInputs.rollerVolts": "Volts",
-    "IndexerIO.setRollers(RPS)": "RPS",
+    "IndexerInputs.rollerRPM": "RPM",
     "IndexerIO.applyIndex(volts)": "Volts",
-    "IndexerIO.setIndex(RPS)": "RPS",
-    "IndexerInputs.rollerRPS": "RPS",
+    "IndexerIO.setRollers(RPM)": "RPM",
+    "IndexerInputs.indexRPM": "RPM",
+    "IndexerIO.setIndex(RPM)": "RPM",
     "IndexerInputs.indexVolts": "Volts"
-  },
-  "Intake": {
-    "IntakeInputs.rollsRPS": "RPS",
-    "IntakeInputs.angulatorAppliedVolts": "Volts",
-    "IntakeInputs.rollsAppliedVolts": "Volts",
-    "IntakeIO.setRollsVoltage(volts)": "Volts",
-    "IntakeInputs.angulatorTargetAngle": "Degrees",
-    "IntakeInputs.angulatorPosition": "Degrees",
-    "IntakeIO.setRollsRPS(rps)": "RPS"
   },
   "Dumper": {
     "DumperIO.setPosition(angle)": "Degrees",

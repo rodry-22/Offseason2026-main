@@ -15,7 +15,7 @@ import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
 
 public class DumperIOkraken implements DumperIO{
 
-     private TalonFX angulator;
+    private TalonFX angulator;
     private TalonFXConfiguration config;
     private TalonFXConfigurator AngulatorConfigurator;
     private MotionMagicExpoVoltage motionRequest;
@@ -65,10 +65,6 @@ public class DumperIOkraken implements DumperIO{
         AngulatorConfigurator.apply(motorConfigs);    
     }
 
-        public enum DumperMODE{
-        kBACK,
-        kFRONT
-    }
 
      @Override
     public void setPosition(double angle, DumperMODE mode){
@@ -111,7 +107,7 @@ public class DumperIOkraken implements DumperIO{
 
         inputs.timestamp = rotorPosSignal.getTimestamp().getLatency();
 
-        inputs.Current = angulator.getStatorCurrent().getValueAsDouble();
+        inputs.current = angulator.getStatorCurrent().getValueAsDouble();
 
     }
 

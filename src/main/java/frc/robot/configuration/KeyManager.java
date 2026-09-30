@@ -14,5 +14,18 @@ public class KeyManager {
 
     //
     public static final String INTAKE_KEY = "Intake";
+    //----------------------------------------MODULOS-------------------------------------------------------------------------
+    public static final String DUMPER_KEY = "Dumper";
+
+    public static final String INDEXER_KEY = "Indexer";
+    public static final String INDEX_KEY = "Index";
+
+    public static final String FLYWHEELS_SHOOTER_KEY = "flywheelsIntake";
+    public static final String FLYWHEELS_INTAKE_KEY = "flywheelsIntake";
+
+    public static final String LIMELIGHT_KEY = "flywheelsIntake";
+
+    
+    public static final String SUPERSTRUCTURE_KEY = "Superstructure";
     
 }

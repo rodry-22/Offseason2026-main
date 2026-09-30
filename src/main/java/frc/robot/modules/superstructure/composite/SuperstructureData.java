@@ -1,5 +1,12 @@
 package frc.robot.modules.superstructure.composite;
 
-public class SuperstructureData {
+import com.stzteam.mars.models.multimodules.CompositeData;
+
+public class SuperstructureData extends CompositeData<SuperstructureData>{
+
+    public boolean isAimedAtHub = false;
+    public boolean isFlywheelReady = false;
+    public boolean readyToShoot = false;
+    public double distanceToHubMeter = 0.0;
     
 }

@@ -5,7 +5,6 @@ import com.stzteam.features.unitprocessor.Unit;
 import com.stzteam.mars.models.singlemodule.Data;
 import com.stzteam.mars.models.singlemodule.IO;
 
-import frc.robot.modules.superstructure.modules.DumperModule.DumperIOkraken.DumperMODE;
 
 @Fallback
 public interface DumperIO extends IO<DumperIO.DumperInputs>{
@@ -24,7 +23,7 @@ public interface DumperIO extends IO<DumperIO.DumperInputs>{
         @Unit(value = "RPS", group = "Dumper")
         public double VelocityRPS = 0;
 
-        public double Current = 0;
+        public double current = 0;
 
         @Override
         public DumperInputs snapshot(){
@@ -37,6 +36,11 @@ public interface DumperIO extends IO<DumperIO.DumperInputs>{
             return clone;
 
         }
+    }
+
+    public enum DumperMODE{
+        kBACK,
+        kFRONT
     }
 
     
