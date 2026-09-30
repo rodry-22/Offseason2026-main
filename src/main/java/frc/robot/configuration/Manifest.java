@@ -22,6 +22,12 @@ import frc.robot.modules.superstructure.modules.DumperModule.DumperIO;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOFallback;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOSim;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIOkraken;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIO;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIOFallback;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIOSim;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIOkrakenDumper;
+import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels.idleMode;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
 import frc.robot.modules.swerve.SwerveTelemetry;
 
@@ -36,70 +42,88 @@ public class Manifest {
 
     private static final int DRIVER_PORT = 0;
     private static final int OPERATOR_PORT = 1;
-
-    static{Environment.setMode(CURRENT_MODE);}
-
-    public static final ControllerType DRIVER_CONTROLLER = ControllerType.XBOX;
-    public static final ControllerType OPERATOR_CONTROLLER = ControllerType.XBOX;
-
-    public static final boolean HAS_DRIVETRAIN = true;
-    public static final boolean HAS_INDEXER = false;
-    public static final boolean HAS_DUMPER = true;
-
     
-    public static class SuperstructureBuilder {
-    public static Superstructure superBuild(
-        Dumper dumper,  
-        Indexer indexer
-        ){
-
-      SuperstructureIO io =
-          new SuperstructureIO(dumper, indexer);
-
-        return new Superstructure(SubsystemBuilder.<SuperstructureData, SuperstructureIO>setup()
-        .key(KeyManager.SUPERSTRUCTURE_KEY).hardware(io, new SuperstructureData()));
-    }
-  }
-
-    public static class ControlsBuilder {
-
-    public static ControllerOI buildDriver() {
-      return DRIVER_CONTROLLER == ControllerType.PS5
-          ? new PS5OI(DRIVER_PORT)
-          : new XboxOI(DRIVER_PORT);
-    }
-
-    public static ControllerOI buildOperator() {
-      return OPERATOR_CONTROLLER == ControllerType.PS5
-          ? new PS5OI(OPERATOR_PORT)
-          : new XboxOI(OPERATOR_PORT);
-    }
-    }
-
-    public static class DrivetrainBuilder {
-
-    public static CommandSwerveDrivetrain buildModule() {
-        if (!HAS_DRIVETRAIN) return null;
-
-        CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-
-        SwerveTelemetry telemetry = new SwerveTelemetry();
-        drivetrain.registerTelemetry(telemetry::telemeterize);
-
-        return drivetrain;
+        static{Environment.setMode(CURRENT_MODE);}
+    
+        public static final ControllerType DRIVER_CONTROLLER = ControllerType.XBOX;
+        public static final ControllerType OPERATOR_CONTROLLER = ControllerType.XBOX;
+    
+        public static final boolean HAS_DRIVETRAIN = true;
+        public static final boolean HAS_INDEXER = true;
+        public static final boolean HAS_DUMPER = true;
+        public static final boolean HAS_SHOOTER_WHELLS = true;
+        public static final boolean HAS_INTAKE_WHELLS = true;
+    
+    
+    
+    
+        public static class SuperstructureBuilder {
+        public static Superstructure superBuild(
+            Dumper dumper,  
+            Indexer indexer,
+            flywheels flywheels
+            ){
+    
+          SuperstructureIO io =
+              new SuperstructureIO(dumper, indexer, flywheels);
+    
+            return new Superstructure(SubsystemBuilder.<SuperstructureData, SuperstructureIO>setup()
+            .key(KeyManager.SUPERSTRUCTURE_KEY).hardware(io, new SuperstructureData()));
         }
-    }
-    public static Indexer buildIndexer() {
-    IndexerIO io =
-        Injector.createIO(HAS_INDEXER, IndexerIOFallback::new, IndexerIOSpark::new, IndexerIOSim::new);
-        return new Indexer(io);
+      }
+    
+        public static class ControlsBuilder {
+    
+        public static ControllerOI buildDriver() {
+          return DRIVER_CONTROLLER == ControllerType.PS5
+              ? new PS5OI(DRIVER_PORT)
+              : new XboxOI(DRIVER_PORT);
+        }
+    
+        public static ControllerOI buildOperator() {
+          return OPERATOR_CONTROLLER == ControllerType.PS5
+              ? new PS5OI(OPERATOR_PORT)
+              : new XboxOI(OPERATOR_PORT);
+        }
+        }
+    
+        public static class DrivetrainBuilder {
+    
+        public static CommandSwerveDrivetrain buildModule() {
+            if (!HAS_DRIVETRAIN) return null;
+    
+            CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    
+            SwerveTelemetry telemetry = new SwerveTelemetry();
+            drivetrain.registerTelemetry(telemetry::telemeterize);
+    
+            return drivetrain;
+            }
+        }
+        public static Indexer buildIndexer() {
+        IndexerIO io =
+            Injector.createIO(HAS_INDEXER, IndexerIOFallback::new, IndexerIOSpark::new, IndexerIOSim::new);
+            return new Indexer(io);
+      }
+    
+        public static Dumper buildDumper(){
+            DumperIO io = Injector.createIO(HAS_DUMPER, DumperIOFallback::new, DumperIOkraken::new, DumperIOSim::new);
+            return new Dumper(io);
+    
+        }
+    
+        public static flywheels buildFlywheels(){
+          flywheelsIO io = Injector.createIO(HAS_SHOOTER_WHELLS, flywheelsIOFallback::new, flywheelsIOkrakenDumper::new, flywheelsIOSim::new);
+          return new flywheels(io, KeyManager.FLYWHEELS_DUMPER_KEY, idleMode.outakeIDLE);
+        }
+    
+        public static flywheels buildFlywheelIntake() {
+        flywheelsIO io =
+            Injector.createIO(HAS_INTAKE_WHELLS, FlyWheelIOFallback::new, FlyWheelIOKrakenIntake::new, FlyWheelIOSim::new);
+
+    return new flywheels(io, KeyManager.FLYWHEELS_INTAKE_KEY, idleMode.intakeIDLE);
   }
 
-    public static Dumper buildDumper(){
-        DumperIO io = Injector.createIO(HAS_DUMPER, DumperIOFallback::new, DumperIOkraken::new, DumperIOSim::new);
-        return new Dumper(io);
-
-    }
 
 }
 

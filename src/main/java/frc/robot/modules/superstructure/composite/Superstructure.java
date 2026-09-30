@@ -1,16 +1,12 @@
 package frc.robot.modules.superstructure.composite;
 
-import java.nio.channels.ClosedByInterruptException;
-import com.revrobotics.servohub.config.ServoChannelConfig.PulseRange;
-import com.stzteam.forgemini.io.NetworkIO;
+
 import com.stzteam.mars.models.SubsystemBuilder;
 import com.stzteam.mars.models.multimodules.CompositeSubsystem;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.configuration.KeyManager;
-import frc.robot.configuration.Manifest.SuperstructureBuilder;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
 
@@ -39,7 +35,9 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
     //Intake intake = getIntake();
 
     return Commands.parallel(
-        dumper.stop()
+        dumper.sotop(),
+        index.stop()
+        
     );
     
  }

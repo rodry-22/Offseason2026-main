@@ -15,7 +15,7 @@ import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
 
 public class DumperIOkraken implements DumperIO{
 
-     private TalonFX angulator;
+    private TalonFX angulator;
     private TalonFXConfiguration config;
     private TalonFXConfigurator AngulatorConfigurator;
     private MotionMagicExpoVoltage motionRequest;

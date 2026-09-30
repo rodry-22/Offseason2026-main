@@ -2,8 +2,6 @@ package frc.robot.requests;
 
 import com.stzteam.features.dictionary.Dictionary.CommonTables.Terminology;
 
-import javax.crypto.interfaces.PBEKey;
-
 import com.stzteam.features.dictionary.Dictionary.StatusCodes;
 import com.stzteam.features.marsprocessor.CreateCommand;
 import com.stzteam.features.marsprocessor.RequestFactory;
@@ -105,7 +103,7 @@ public interface FlywheelsRequest extends Request<FlyWheelsInputs, flywheelsIO>{
             return this;
         }
 
-        @Override
+    @Override
     public ActionStatus apply(FlyWheelsInputs parameters, flywheelsIO actor) {
       parameters.targetRPM = rpm;
       actor.setTargetRPM(rpm);
@@ -120,9 +118,43 @@ public interface FlywheelsRequest extends Request<FlyWheelsInputs, flywheelsIO>{
       }
     }
     }
-
+    
+/* 
     @CreateCommand(name = "distanceToRPM")
-    public static class Inter {
-   
+  public static class InterpolateRPM implements FlywheelsRequest {
+    private DoubleSupplier distanceMetersSupplier;
+    private double toleranceRPM = 50.0;
+
+    public InterpolateRPM withDistance(DoubleSupplier distanceSupplier) {
+      this.distanceMetersSupplier = distanceSupplier;
+      return this;
     }
+
+    public InterpolateRPM withTolerance(double tol) {
+      this.toleranceRPM = tol;
+      return this;
+    }
+
+    @Override
+    public ActionStatus apply(FlyWheelsInputs data, flywheelsIO actor) {
+
+      double distance = distanceMetersSupplier.getAsDouble();
+
+      double targetRPM = Constants.RPM_MAP.get(distance);
+
+      data.targetRPM = targetRPM;
+      actor.setTargetRPM(targetRPM);
+
+      boolean isAtTarget = MathUtil.isNear(targetRPM, data.velocityRPM, toleranceRPM);
+
+      if (isAtTarget) {
+        return ActionStatus.of(flywheels.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
+      } else {
+        return ActionStatus.of(
+            flywheels.MOVING_TO_RPM, StatusCodes.TARGET_STATUS + Math.round(targetRPM) + " RPM");
+      }
+    }
+  }
+*/
+
 } 

@@ -54,4 +54,10 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
             NetworkIO.set(KeyManager.INDEXER_KEY, VOLTAGE_ROLL_KEY, data.rollerVolts);
         }
     }
+
+
+public Command stop() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'stop'");
+}
 }

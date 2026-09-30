@@ -1,12 +1,10 @@
 package frc.robot.modules.superstructure.modules.IndexerModule;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.configuration.constants.moduleconstants.IndexerConstants;
 
 public class IndexerIOSim implements IndexerIO{

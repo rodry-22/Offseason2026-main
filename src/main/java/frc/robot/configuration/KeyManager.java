@@ -1,6 +1,5 @@
 package frc.robot.configuration;
 
-
 import com.stzteam.mars.blackboard.BlackboardKey;
 
 public class KeyManager {
@@ -15,10 +14,16 @@ public class KeyManager {
 
     //----------------------------------------MODULOS-------------------------------------------------------------------------
     public static final String DUMPER_KEY = "Dumper";
+
     public static final String INDEXER_KEY = "Indexer";
     public static final String INDEX_KEY = "Index";
-    public static final String FlYWHEELS_KEY = "flywheels";
 
+    public static final String FLYWHEELS_DUMPER_KEY = "flywheelsIntake";
+    public static final String FLYWHEELS_INTAKE_KEY = "flywheelsIntake";
+
+    public static final String LIMELIGHT_KEY = "flywheelsIntake";
+
+    
     public static final String SUPERSTRUCTURE_KEY = "Superstructure";
     
 }

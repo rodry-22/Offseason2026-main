@@ -6,8 +6,6 @@ package frc.robot.configuration.bindings;
 
 import com.stzteam.mars.models.containers.Binding;
 import com.stzteam.mars.operator.ControllerOI;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.configuration.constants.moduleconstants.SwerveConstants;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
 import frc.robot.modules.swerve.SwerveRequestFactory;
