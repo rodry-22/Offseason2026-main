@@ -34,11 +34,11 @@ public class IndexerIOSpark implements IndexerIO {
         //TODO: Gear done, and RPS done. More tuning may be needed.
         rollConfig
             .idleMode(IdleMode.kCoast)
-            .encoder.velocityConversionFactor(1/60)
+            .encoder.velocityConversionFactor(1)
                     .positionConversionFactor(1/IndexerConstants.indexRatio);//TODO:@Units may be doing this, must look into
         indexConfig
             .idleMode(IdleMode.kCoast)
-            .encoder.velocityConversionFactor(1/60)
+            .encoder.velocityConversionFactor(1)
                     .positionConversionFactor(1/IndexerConstants.indexRatio); 
         
 

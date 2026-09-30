@@ -50,9 +50,8 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
         }
     }
 
-
-public Command setControl(Supplier<IndexerRequest> request) {
-    return runRequest(request);
+    public Command setControl(Supplier<IndexerRequest> request) {
+        return runRequest(request);
 
 }
 

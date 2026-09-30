@@ -51,7 +51,7 @@ public class flywheels extends ModularSubsystem<FlyWheelsInputs, flywheelsIO> im
             SubsystemBuilder.<FlyWheelsInputs, flywheelsIO>setup()
             .key(key)
             .hardware(io, new FlyWheelsInputs())
-            .request(FlywheelsRequestFactory.idelIntake())
+            .request(FlywheelsRequestFactory.idleIntake())
             .telemetry(new flywheelsTelemetry(key))
         );
 
@@ -60,7 +60,7 @@ public class flywheels extends ModularSubsystem<FlyWheelsInputs, flywheelsIO> im
 
 
         if (mode == idleMode.intakeIDLE) {
-            this.setDefaultCommand(runRequest(() -> FlywheelsRequestFactory.idelIntake()));
+            this.setDefaultCommand(runRequest(() -> FlywheelsRequestFactory.idleIntake()));
         } else {
             this.setDefaultCommand(runRequest(() -> FlywheelsRequestFactory.idleOutake()));
         }
