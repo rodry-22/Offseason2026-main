@@ -12,6 +12,8 @@ public class KeyManager {
     public static final BlackboardKey<Boolean> myBlackBoardKeyBoolean = new BlackboardKey<>(myKey, Boolean.class);
     public static final String SWERVE_KEY = "Swerve";
 
+    //
+    public static final String INTAKE_KEY = "Intake";
     //----------------------------------------MODULOS-------------------------------------------------------------------------
     public static final String DUMPER_KEY = "Dumper";
 
