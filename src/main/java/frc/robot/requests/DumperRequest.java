@@ -37,7 +37,7 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
                 return ActionStatus.of(Dumper.RESET, "Reseted");
         }
     }
-
+/*
         // Here -> get if it sees the hub and if it does, set the angle to the distance to the hub * 0.5 + 10
 
     @CreateCommand(name = "automaticAngle")
@@ -125,7 +125,7 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
             }
         }
     }   
-    
+ */   
 
     @CreateCommand(name = "setAngle")
     public static class setAngle implements DumperRequest{

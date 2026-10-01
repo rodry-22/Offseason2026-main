@@ -14,6 +14,11 @@ import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIO;
 import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIOFallback;
 import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIOSim;
 import frc.robot.modules.superstructure.modules.IndexerModule.IndexerIOSpark;
+import frc.robot.modules.superstructure.modules.IntakeModule.Intake;
+import frc.robot.modules.superstructure.modules.IntakeModule.IntakeIO;
+import frc.robot.modules.superstructure.modules.IntakeModule.IntakeIOFallback;
+import frc.robot.modules.superstructure.modules.IntakeModule.IntakeIOSim;
+import frc.robot.modules.superstructure.modules.IntakeModule.IntakeSpark;
 import frc.robot.modules.superstructure.composite.Superstructure;
 import frc.robot.modules.superstructure.composite.SuperstructureData;
 import frc.robot.modules.superstructure.composite.SuperstructureIO;
@@ -53,7 +58,8 @@ public class Manifest {
         public static final boolean HAS_INDEXER = true;
         public static final boolean HAS_DUMPER = true;
         public static final boolean HAS_SHOOTER_WHELLS = true;
-        public static final boolean HAS_INTAKE_WHELLS = true;
+        public static final boolean HAS_INTAKE_FLYWHELLS = true;
+        public static final boolean HAS_INTAKE_WHEELS = true;
     
     
     
@@ -61,13 +67,14 @@ public class Manifest {
         public static class SuperstructureBuilder {
         public static Superstructure superBuild(
             Dumper dumper,  
+            Intake intake,
             Indexer indexer,
-            flywheels flywheelsIntake,
-            flywheels flywheelsShooter
+            flywheels flywheelsShooter,
+            flywheels flywheelsIntake
             ){
     
           SuperstructureIO io =
-              new SuperstructureIO(dumper, indexer, flywheelsIntake, flywheelsShooter);
+              new SuperstructureIO(dumper, intake, indexer, flywheelsShooter,flywheelsIntake);
     
             return new Superstructure(SubsystemBuilder.<SuperstructureData, SuperstructureIO>setup()
             .key(KeyManager.SUPERSTRUCTURE_KEY).hardware(io, new SuperstructureData()));
@@ -107,6 +114,11 @@ public class Manifest {
             Injector.createIO(HAS_INDEXER, IndexerIOFallback::new, IndexerIOSpark::new, IndexerIOSim::new);
             return new Indexer(io);
       }
+
+      public static Intake buildIntake(){
+        IntakeIO io = Injector.createIO(HAS_INTAKE_WHEELS, IntakeIOFallback::new, IntakeSpark::new, IntakeIOSim::new);
+        return new Intake(io);
+      }
     
         public static Dumper buildDumper(){
             DumperIO io = Injector.createIO(HAS_DUMPER, DumperIOFallback::new, DumperIOSpark::new, DumperIOSim::new);
@@ -121,7 +133,7 @@ public class Manifest {
     
         public static flywheels buildFlywheelsIntake() {
         flywheelsIO io =
-            Injector.createIO(HAS_INTAKE_WHELLS, flywheelsIOFallback::new, FlyWheelIOKrakenIntake::new, flywheelsIOSim::new);
+            Injector.createIO(HAS_INTAKE_FLYWHELLS, flywheelsIOFallback::new, FlyWheelIOKrakenIntake::new, flywheelsIOSim::new);
 
     return new flywheels(io, KeyManager.FLYWHEELS_INTAKE_KEY, idleMode.intakeIDLE);
   }

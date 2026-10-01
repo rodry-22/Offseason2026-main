@@ -33,6 +33,7 @@ public class IndexerIOSpark implements IndexerIO {
 
         rollConfig
             .idleMode(IdleMode.kCoast)
+            .inverted(true)
             .encoder.positionConversionFactor(1/IndexerConstants.indexRatio);
         indexConfig
             .idleMode(IdleMode.kCoast)

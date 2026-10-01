@@ -43,7 +43,7 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
     }
 
     //----------------------------------COMMANDS-------------------------------------------------------------
-
+/* 
     public Command shoot(double turretAngle, double armAngle, double shooterRPM) {
       flywheels flywheelShooter = getFlywheelsShooter();
       Indexer index = getIndexer();
@@ -64,15 +64,17 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
                   intakeWheels.setControl(
                       () -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)))));
   }
+                      */
 
-    public Command intake() {
-      Indexer index = getIndexer();
+
+//MOVE WHEELS INTAKE
+    public Command intakewheels() {
       flywheels intakeWheels = getFlywheelsIntake();
 
       return Commands.parallel(
-          intakeWheels.setControl(() -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)),
-          index.setControl(() -> IndexerRequestFactory.setRollers().withVolts(feedVolts)));
+          intakeWheels.setControl(() -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)));
   }
+
 
 
     public Command Process(){

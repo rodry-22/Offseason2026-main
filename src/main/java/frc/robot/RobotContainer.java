@@ -24,6 +24,7 @@ import frc.robot.configuration.bindings.OperatorBindings;
 import frc.robot.modules.superstructure.composite.Superstructure;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
+import frc.robot.modules.superstructure.modules.IntakeModule.Intake;
 import frc.robot.modules.swerve.ChassisTuningDashboard;
 import frc.robot.modules.swerve.CommandSwerveDrivetrain;
 import frc.tests.EmptyTest;
@@ -39,6 +40,7 @@ public class RobotContainer implements IRobotContainer{
   public final Indexer indexer;
   public final flywheels flywheelsIntake;
   public final flywheels flywheelsShooter;
+  public final Intake intake;
 
 
   public final Superstructure superstructure;
@@ -70,10 +72,12 @@ public class RobotContainer implements IRobotContainer{
     this.indexer = Manifest.buildIndexer();
     this.flywheelsIntake = Manifest.buildFlywheelsIntake();
     this.flywheelsShooter = Manifest.buildFlywheelsShooter();
+    this.intake = Manifest.buildIntake();
 
 
     this.superstructure = SuperstructureBuilder.superBuild(
       this.dumper,
+      this.intake,
       this.indexer,
       this.flywheelsIntake,
       this.flywheelsShooter
