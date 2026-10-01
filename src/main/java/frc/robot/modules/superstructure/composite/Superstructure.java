@@ -59,7 +59,7 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
                     () -> DumperRequestFactory.setAngle().withAngle(armAngle).withMode(DumperMODE.kFRONT)))
                     .until(() -> flywheelShooter.isAtTarget(Constants.FLYWHEEL_TOLERANCE)),
         Commands.parallel(
-                index.setControl(() -> IndexerRequestFactory.setRollers().withRPS(shooterRPM))),
+                index.setControl(() -> IndexerRequestFactory.setRollers().withRPM(shooterRPM))),
                 //index.setControl(
                  // () -> IndexerRequestFactory.moveVoltage().withRollers(12).withIndex(12)),
 

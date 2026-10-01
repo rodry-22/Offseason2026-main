@@ -1,4 +1,4 @@
-package frc.robot.modules.superstructure.modules.dumperModule;
+package frc.robot.modules.superstructure.modules.DumperModule;
 
 import java.util.function.Supplier;
 
