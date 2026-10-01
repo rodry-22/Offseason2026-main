@@ -1,5 +1,6 @@
 package frc.robot.requests;
 
+
 import com.stzteam.features.dictionary.Dictionary.StatusCodes;
 import com.stzteam.features.marsprocessor.CreateCommand;
 import com.stzteam.features.marsprocessor.RequestFactory;
@@ -19,7 +20,7 @@ import frc.robot.utils.LimelightHelpers;
 @RequestFactory
 public interface DumperRequest extends Request<DumperInputs, DumperIO>{
 
-    @CreateCommand(name = "stop")
+    @CreateCommand(name = "sotop")
     public static class Idle implements DumperRequest{
         @Override
         public ActionStatus apply(DumperInputs data, DumperIO actor) {
@@ -36,106 +37,17 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
                 return ActionStatus.of(Dumper.RESET, "Reseted");
         }
     }
-    /* 
-    // Here -> get if it sees the hub and if it does, set the angle to the distance to the hub * 0.5 + 10
 
-    @CreateCommand(name = "automaticAngle")
-    public static class automaticAngle implements DumperRequest{
-        @Override 
-        public ActionStatus apply(DumperInputs parameters, DumperIO actor){
-            LimelightHelpers.setPriorityTagID("", 4);
-         
-            DumperMODE mode = DumperMODE.kFRONT;
-
-            double currentID = LimelightHelpers.getFiducialID("");
-            boolean seesHub = LimelightHelpers.getTV("");//isValidTarget
-
-            double[] hubIDs = {1, 2, 3, 4, 5, 6, 7, 8}; //can't this be int?
-            boolean isHub = false; //id's son int
-            for (double id : hubIDs) {
-                if (currentID == id) {
-                    isHub = true;
-                    break; }
-        }
-            //si validTarget y FiducialID
-           if (seesHub && isHub){
-                double distanceToHub = LimelightHelpers.getTargetPose3d_CameraSpace("").getTranslation().getX();
-                //parameters.distance_hub = distanceToHub;      
-                double hub_hieght = 1.85; //meters
-                double gravity = 9.81; //m/s^2
-                double v0 = 0; //initial velocity
-                double v0_2 = v0 * v0;
-        
-        //pq es v0^4? - 
-        double discrminant = Math.pow(v0, 4) - gravity * (gravity * Math.pow(distanceToHub, 2) + 2 * hub_hieght * v0_2);
-        //What if == 0?
-       if (discrminant < 0) {
-            // No real solution, handle this case appropriately.
-            actor.setPosition(0, mode);
-        }
-
-        double sqrtDiscriminant = Math.sqrt(discrminant);
-        double angle1 = Math.atan((v0_2 + sqrtDiscriminant) / (gravity * distanceToHub));
-        double angle2 = Math.atan((v0_2 - sqrtDiscriminant) / (gravity * distanceToHub));
-
-        // Choose the appropriate angle based on the mode
-        double chosenAngle;
-        if (mode == DumperMODE.kBACK) {
-            chosenAngle = Math.max(angle1, angle2); // Higher angle for back mode
-        } else {
-            chosenAngle = Math.min(angle1, angle2); // Lower angle for front mode
-        }
-
-        // Convert to degrees and set position
-        double position = Units.radiansToDegrees(chosenAngle);
-        parameters.TargetAngle = position;
-        
-        actor.setPosition(position, mode);
-        boolean isAtTarget = MathUtil.isNear(position, parameters.position, 1.0); //redundant?
-
-        if  (isAtTarget){
-                return ActionStatus.of(Dumper.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
-            } else {
-                return ActionStatus.of(
-                    Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(position)
-                );
-            }
-        }
-    }
-    }
-    /* 
-    // here -> getpose 2d
-    @CreateCommand(name = "Limiter")
-    public static class Limiter implements DumperRequest{
-
-        @Override 
-        public ActionStatus apply(DumperInputs parameters, DumperIO actor){
-            double targetAngle = parameters.distance_hub * 0.5 + 10;
-            parameters.TargetAngle = targetAngle;
-            actor.setPosition(targetAngle, DumperMODE.kFRONT);
-
-            boolean isAtTarget = MathUtil.isNear(targetAngle, parameters.position, 1.0);
-
-            if  (isAtTarget){
-                return ActionStatus.of(Dumper.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
-            } else {
-                return ActionStatus.of(
-                    Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(targetAngle)
-                );
-            }
-        }
-    }   
-    */
-/* 
         // Here -> get if it sees the hub and if it does, set the angle to the distance to the hub * 0.5 + 10
 
     @CreateCommand(name = "automaticAngle")
     public static class automaticAngle implements DumperRequest{
         @Override 
         public ActionStatus apply(DumperInputs parameters, DumperIO actor){
+
             LimelightHelpers.setPriorityTagID("", 4);
-            LimelightHelpers.setPriorityTargetID("", 4);
-            private DumperMODE mode = DumperMODE.kFRONT;
+         
+            DumperMODE mode = DumperMODE.kFRONT;
 
             double currentID = LimelightHelpers.getFiducialID("");
             boolean seesHub = LimelightHelpers.getTV("");
@@ -155,18 +67,18 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
                 double gravity = 9.81; //m/s^2
                 double v0 = 0; //initial velocity
                 double v0_2 = v0 * v0;
+            
         
-        
-        double discrminant = Math.pow(v0, 4) - gravity * (gravity * Math.pow(distance, 2) + 2 * hub_hieght * v0_2);
-`       if (discrminant < 0) {
+        double discrminant = Math.pow(v0, 4) - gravity * (gravity * Math.pow(distanceToHub, 2) + 2 * hub_hieght * v0_2);
+       if (discrminant < 0) {
             // No real solution, handle this case appropriately
-            return;
+            actor.setPosition(0, mode);
         }
 
         double sqrtDiscriminant = Math.sqrt(discrminant);
-        double angle1 = Math.atan((v0_2 + sqrtDiscriminant) / (gravity * distance));
-        double angle2 = Math.atan((v0_2 - sqrtDiscriminant) / (gravity * distance));
-
+        double angle1 = Math.atan((v0_2 + sqrtDiscriminant) / (gravity * distanceToHub));
+        double angle2 = Math.atan((v0_2 - sqrtDiscriminant) / (gravity * distanceToHub));
+        
         // Choose the appropriate angle based on the mode
         double chosenAngle;
         if (mode == DumperMODE.kBACK) {
@@ -176,22 +88,22 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
         }
 
         // Convert to degrees and set position
-        position = Units.radiansToDegrees(chosenAngle);
+        double position = Units.radiansToDegrees(chosenAngle);
         parameters.TargetAngle = position;
         
         actor.setPosition(position, mode);
         boolean isAtTarget = MathUtil.isNear(position, parameters.position, 1.0);
-
+        //SOLO SI .     RETURN ESO, SIEMPRE QUE NO SEA ESO
         if  (isAtTarget){
                 return ActionStatus.of(Dumper.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
-            } else {
-                return ActionStatus.of(
-                    Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(position)
-                );
-            }
+            } 
+        return ActionStatus.of(
+            Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(position));
+            
         }
     }
     }
+    
     // here -> getpose 2d
     @CreateCommand(name = "Limiter")
     public static class Limiter implements DumperRequest{
@@ -213,7 +125,7 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
             }
         }
     }   
-    */
+    
 
     @CreateCommand(name = "setAngle")
     public static class setAngle implements DumperRequest{
@@ -251,7 +163,9 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
             if  (isAtTarget){
                 return ActionStatus.of(Dumper.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
             } else {
-                return ActionStatus.of(Dumper.MOVING_TO_ANGLE, angle);
+                return ActionStatus.of(
+                    Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(angle)
+                );
             }
         }
     }
@@ -277,4 +191,3 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
 
     
 }
-

@@ -15,18 +15,16 @@ public class SuperstructureIO extends CompositeIO<SuperstructureData>{
         flywheels flywheelShooter,
         flywheels flywheelsIntake){
 
-            registerChild(dumper);
-            registerChild(indexer);
+        registerChild(dumper);
+        registerChild(indexer);
+        registerChild(flywheelsIntake);
+        registerChild(flywheelShooter);
 
         }
 
 
-    public SuperstructureIO(Dumper dumper, Indexer indexer, flywheels flywheelsIntake, flywheels flywheelsShooter) {
-        registerChild(dumper);
-        registerChild(indexer);
-        registerChild(flywheelsIntake);
-        registerChild(flywheelsShooter);
-    }
+
+    
 
 
     @Override 

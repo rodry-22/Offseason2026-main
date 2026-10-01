@@ -3,10 +3,8 @@ package frc.robot.modules.superstructure.modules.FlywheelsModule;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants;
 
