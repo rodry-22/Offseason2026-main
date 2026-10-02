@@ -34,7 +34,7 @@ public class flywheelsConstants {
         public static final double RPM_4_5 = 0;
 
         //sim
-        public static final double kGearing = 1;
+        public static final double kGearing = 4;
         public static final double kMOI = 0.002;
         //sim
 

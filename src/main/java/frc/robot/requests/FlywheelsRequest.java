@@ -17,7 +17,7 @@ import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheelsIO.FlyW
 @RequestFactory
 public interface FlywheelsRequest extends Request<FlyWheelsInputs, flywheelsIO>{
 
-    public static class IdelIntake implements FlywheelsRequest{
+    public static class IdleIntake implements FlywheelsRequest{
 
         @Override
         public ActionStatus apply(FlyWheelsInputs parameters, flywheelsIO actor) {

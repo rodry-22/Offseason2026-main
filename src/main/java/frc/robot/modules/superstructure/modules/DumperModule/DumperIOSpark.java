@@ -13,14 +13,14 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.configuration.constants.TunerConstants;
 import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
 
-public class DumperIOkraken implements DumperIO{
+public class DumperIOSpark implements DumperIO{
 
     private TalonFX angulator;
     private TalonFXConfiguration config;
     private TalonFXConfigurator AngulatorConfigurator;
     private MotionMagicExpoVoltage motionRequest;
 
-     public DumperIOkraken(){
+     public DumperIOSpark(){
         angulator = new TalonFX(Dumperconstants.Angulator_MOTOR_CAN_ID, TunerConstants.kCANBus);
         AngulatorConfigurator = angulator.getConfigurator();
         config = new TalonFXConfiguration();

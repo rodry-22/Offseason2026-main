@@ -1,5 +1,7 @@
 package frc.robot.modules.superstructure.composite;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.stzteam.mars.models.SubsystemBuilder;
 import com.stzteam.mars.models.multimodules.CompositeSubsystem;
 
@@ -13,6 +15,7 @@ import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
 import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
 import frc.robot.requests.DumperRequestFactory;
 import frc.robot.requests.FlywheelsRequestFactory;
+import frc.robot.requests.IndexerRequest;
 import frc.robot.requests.IndexerRequestFactory;
 
 public class Superstructure extends CompositeSubsystem<SuperstructureData, SuperstructureIO>{
@@ -108,18 +111,20 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
 
     return Commands.parallel(
         dumper.stop(),
-        index.stop(),
-        flywheel.runRequest(() -> FlywheelsRequestFactory.idelIntake()),
+        index.idleIndexer(),
+        flywheel.runRequest(() -> FlywheelsRequestFactory.idleIntake()),
         flywheelout.runRequest(() -> FlywheelsRequestFactory.idleOutake())
 
         
     );
     
  }
-
+ /* 
+  @Override
   public SuperstructureData getState() {
     return inputs;
   }
+    */
 
 
 @Override
