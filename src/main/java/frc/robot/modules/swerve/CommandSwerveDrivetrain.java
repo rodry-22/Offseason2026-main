@@ -8,10 +8,11 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import com.stzteam.forgemini.io.NetworkIO;
 import edu.wpi.first.math.Matrix;
@@ -25,7 +26,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,9 +34,11 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.KeyManager;
 import frc.robot.configuration.constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.configuration.constants.moduleconstants.SwerveConstants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.SysIdRoutineManager;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 
@@ -51,7 +53,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
   implements Subsystem{
   private static final double kSimLoopPeriod = 0.004; // 4 ms
   private Notifier m_simNotifier = null;
-  private double m_lastSimTime;
+  private MarsSimGlue m_marsGlue = null;
 
   private double GravityFactor = 9.80665;
 
@@ -74,6 +76,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
       new PathConstraints(4.5, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
   //private final PoseFinder finder;
+
+  private final SwerveRequest.ApplyRobotSpeeds pathPlannerRequest =
+      SwerveRequestFactory.pathPlannerRequest();
+  private RobotConfig robotConfig = null;
+  private Pose2d lastPathTargetPose = null;
+  private Consumer<Pose2d> pathTargetListener = null;
 
   private int lastIMUMode = -1;
 
@@ -186,26 +194,59 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
   private void configurePathPlanner() {
     try {
       // Cargar configuración de la GUI de PathPlanner (RobotConfig)
-      RobotConfig config = RobotConfig.fromGUISettings();
+      robotConfig = RobotConfig.fromGUISettings();
 
       AutoBuilder.configure(
           () -> this.getState().Pose, // 1. Supplier de Pose
           this::resetPose, // 2. Consumer para resetear pose
           this::getChassisSpeeds, // 3. Supplier de Velocidades actuales
-          (speeds, feedforwards) ->
-              this.setControl(SwerveRequestFactory.pathPlannerRequest().withSpeeds(speeds)),
-          // -----------------------------
-
+          this::applyPathPlannerOutput, // 4. Velocidades + feedforwards de fuerza por rueda
           new PPHolonomicDriveController(
-              new PIDConstants(5.0, 0.0, 0.0), // PID de Traslación
-              new PIDConstants(5.0, 0.0, 0.0) // PID de Rotación
+              SwerveConstants.PathTranslationPID, // PID de Traslación
+              SwerveConstants.PathRotationPID // PID de Rotación
               ),
-          config,
+          robotConfig,
           () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
           this);
     } catch (Exception e) {
       DriverStation.reportError("Fallo al configurar PathPlanner: " + e.getMessage(), true);
     }
+
+    // Pose objetivo vs pose real del path activo, para ver el error de seguimiento en AdvantageScope
+    PathPlannerLogging.setLogTargetPoseCallback(
+        pose -> {
+          lastPathTargetPose = pose;
+          field.getObject("PathTarget").setPose(pose);
+          NetworkIO.set(KeyManager.SWERVE_KEY, "PathTargetPose", pose);
+          if (pathTargetListener != null) {
+            pathTargetListener.accept(pose);
+          }
+        });
+    PathPlannerLogging.setLogActivePathCallback(
+        poses -> field.getObject("ActivePath").setPoses(poses));
+  }
+
+  /** Manda a los modulos la salida de PathPlanner, incluyendo el feedforward de fuerza por rueda. */
+  public void applyPathPlannerOutput(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
+    setControl(
+        pathPlannerRequest
+            .withSpeeds(speeds)
+            .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+            .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons()));
+  }
+
+  /** RobotConfig cargado de deploy/pathplanner/settings.json, o null si no se pudo cargar. */
+  public RobotConfig getRobotConfig() {
+    return robotConfig;
+  }
+
+  public Pose2d getLastPathTargetPose() {
+    return lastPathTargetPose;
+  }
+
+  /** Recibe cada pose objetivo que publica PathPlanner mientras sigue un path (null para quitarlo). */
+  public void setPathTargetListener(Consumer<Pose2d> listener) {
+    this.pathTargetListener = listener;
   }
 
   public ChassisSpeeds getChassisSpeeds() {
@@ -458,19 +499,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
   }
 */
   private void startSimThread() {
-    m_lastSimTime = Utils.getCurrentTimeSeconds();
+    // Con MARS Simulation Studio corriendo, la fisica sale de Gazebo (masa, patinaje, choques);
+    // sin el, el glue llama a updateSimState y queda la simulacion cinematica de CTRE de siempre.
+    m_marsGlue = new MarsSimGlue(this);
 
     /* Run simulation at a faster rate so PID gains behave more reasonably */
-    m_simNotifier =
-        new Notifier(
-            () -> {
-              final double currentTime = Utils.getCurrentTimeSeconds();
-              double deltaTime = currentTime - m_lastSimTime;
-              m_lastSimTime = currentTime;
-
-              /* use the measured time delta, get battery voltage from WPILib */
-              updateSimState(deltaTime, RobotController.getBatteryVoltage());
-            });
+    m_simNotifier = new Notifier(m_marsGlue::update);
     m_simNotifier.startPeriodic(kSimLoopPeriod);
   }
 

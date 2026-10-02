@@ -18,6 +18,7 @@ import frc.robot.requests.IndexerRequestFactory;
 public class Superstructure extends CompositeSubsystem<SuperstructureData, SuperstructureIO>{
 
     private static final double intakeVolts = -5;
+    private static final double feedVolts = 12;
 
 
     public Superstructure(SubsystemBuilder<SuperstructureData, SuperstructureIO> builder){
@@ -48,26 +49,54 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
       Dumper dumper = getDumper();
       flywheels intakeWheels = getFlywheelsIntake();
 
-      return Commands.sequence(
-        Commands.parallel(
-                flywheelShooter.runRequest(
-                    () ->
-                        FlywheelsRequestFactory.setRPM()
-                            .toRPM(shooterRPM)
-                            ),
-                dumper.setControl(
-                    () -> DumperRequestFactory.setAngle().withAngle(armAngle).withMode(DumperMODE.kFRONT)))
-                    .until(() -> flywheelShooter.isAtTarget(Constants.FLYWHEEL_TOLERANCE)),
-        Commands.parallel(
-                index.setControl(() -> IndexerRequestFactory.setRollers().withRPS(shooterRPM))),
-                //index.setControl(
-                 // () -> IndexerRequestFactory.moveVoltage().withRollers(12).withIndex(12)),
-
-                intakeWheels.setControl(
-                  ()-> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)));
-                
+      // Shooter y dumper se quedan activos todo el comando; el indexer e intake
+      // solo empiezan a alimentar cuando el shooter llega a las RPM objetivo.
+      return Commands.parallel(
+          flywheelShooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(shooterRPM)),
+          dumper.setControl(
+              () -> DumperRequestFactory.setAngle().withAngle(armAngle).withMode(DumperMODE.kFRONT)),
+          Commands.sequence(
+              Commands.waitUntil(() -> flywheelShooter.isAtTarget(Constants.FLYWHEEL_TOLERANCE)),
+              Commands.parallel(
+                  index.setControl(
+                      () -> IndexerRequestFactory.processing().withRollers(feedVolts).withIndex(feedVolts)),
+                  intakeWheels.setControl(
+                      () -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)))));
   }
 
+    public Command intake() {
+      Indexer index = getIndexer();
+      flywheels intakeWheels = getFlywheelsIntake();
+
+      return Commands.parallel(
+          intakeWheels.setControl(() -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)),
+          index.setControl(() -> IndexerRequestFactory.setRollers().withVolts(feedVolts)));
+  }
+
+
+    public Command Process(){
+      Indexer index = getIndexer();
+
+      // Voltaje en vez de RPM: el SparkMax no tiene PID configurado (kP = 0),
+      // asi que un setpoint de velocidad no mueve el motor.
+      return index.setControl(
+          () -> IndexerRequestFactory.processing().withRollers(feedVolts).withIndex(feedVolts));
+    }
+
+    // Sin PID: mueve el shooter en duty cycle (-1.0 a 1.0)
+    public Command spinShooter(double speed){
+      flywheels flywheelShooter = getFlywheelsShooter();
+
+      return flywheelShooter.setControl(() -> FlywheelsRequestFactory.moveSpeed().whiSpeed(speed));
+    }
+
+    // Process sin PID, en duty cycle. Negativo = feedear (positivo expulsaba)
+    public Command ProcessSpeed(double speed){
+      Indexer index = getIndexer();
+
+      return index.setControl(
+          () -> IndexerRequestFactory.processingSpeed().withRollers(-speed).withIndex(-speed));
+    }
 
     public Command stopAll() {
 

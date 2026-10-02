@@ -189,3 +189,5 @@ compile_commands.json
 
 # version file
 src/main/java/frc/robot/BuildConstants.java
+# Resultados del autotune robusto (tools/robust_autotune.py)
+tools/robust_out/

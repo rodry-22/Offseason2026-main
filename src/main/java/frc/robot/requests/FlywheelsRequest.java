@@ -111,10 +111,9 @@ public interface FlywheelsRequest extends Request<FlyWheelsInputs, flywheelsIO>{
       boolean isAtTarget = MathUtil.isNear(rpm, parameters.velocityRPM, tolerance);
 
       if (isAtTarget) {
-        return ActionStatus.of(flywheels.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
+        return ActionStatus.of(flywheels.ON_TARGET, rpm);
       } else {
-        return ActionStatus.of(
-            flywheels.MOVING_TO_RPM, StatusCodes.TARGET_STATUS + rpm + Terminology.RPM);
+        return ActionStatus.of(flywheels.MOVING_TO_RPM, rpm);
       }
     }
     }

@@ -74,6 +74,16 @@ public class IndexerIOSpark implements IndexerIO {
     
 
     @Override
+    public void setRollersSpeed(double speed) {
+        rollMotor.set(speed);
+    }
+
+    @Override
+    public void setIndexSpeed(double speed) {
+        indexMotor.set(speed);
+    }
+
+    @Override
     public void stopRollers() {
         rollMotor.stopMotor();
     }

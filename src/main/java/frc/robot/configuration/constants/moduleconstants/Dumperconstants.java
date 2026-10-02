@@ -2,7 +2,7 @@ package frc.robot.configuration.constants.moduleconstants;
 
 public class Dumperconstants {
 
-    public static final int Angulator_MOTOR_CAN_ID = 0;
+    public static final int Angulator_MOTOR_CAN_ID = 19;
     public static final int CurrentLimit = 0;
 
     //slots0

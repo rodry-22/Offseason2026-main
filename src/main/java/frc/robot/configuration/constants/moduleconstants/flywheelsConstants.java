@@ -7,8 +7,8 @@ public class flywheelsConstants {
 
     public class shooterWheelsConstants{
 
-        public static final int shooterLeaderID = 19;
-        public static final int shooterFollowerID = 20;
+        public static final int shooterLeaderID = 20;
+        public static final int shooterFollowerID = 19;
 
         public static final double SupplyCurrentLimit = 70;
         public static final boolean SupplyCurrentLimitEnable = true;
@@ -25,7 +25,7 @@ public class flywheelsConstants {
 
         public static final double kD = 0;
 
-        public static double idleVoltage = -1;
+        public static double idleVoltage = 0;
 
         public static final double RPM_0_1 = 0;
         public static final double RPM_1_2 = 0;

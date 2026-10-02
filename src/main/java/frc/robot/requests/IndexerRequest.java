@@ -103,30 +103,43 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
                 }
             }
         }
-        //  @CreateCommand(name = "processing")
-        //  public static class Processing implements IndexerRequest{
-        //     public double m_volts = 0;
-        //     public double m_RPM = 0;
-        //         public Processing withVolts(double volts){
-        //             m_volts = volts;
-        //             return this;
-        //     }
-        //         public Processing withRPM(double RPM){
-        //             m_RPM = RPM;
-        //             return this;
-        //     }
-        //     @Override
-        //     public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
-        //     if(m_volts != 0){
-        //         actor.applyIndex(m_volts);
-        //         return ActionStatus.of(PROCESSING, "Rollers and Index working");
-        //     } else if(m_RPM != 0){
-        //         actor.setIndex(m_RPM);
-        //         return ActionStatus.of(PROCESSING, "Rollers and Index working");
-        //     } else {
-        //         actor.stopAll();
-        //         return ActionStatus.of(IDLE, "Indexer is idle");
-        //     }
-        //     }
-        // }
+        @CreateCommand(name = "processing")
+        public static class Processing implements IndexerRequest{
+            public double m_rollerVolts = 0;
+            public double m_indexVolts = 0;
+            public Processing withRollers(double volts){
+                m_rollerVolts = volts;
+                return this;
+            }
+            public Processing withIndex(double volts){
+                m_indexVolts = volts;
+                return this;
+            }
+            @Override
+            public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
+                actor.applyRollers(m_rollerVolts);
+                actor.applyIndex(m_indexVolts);
+                return ActionStatus.of(PROCESSING, "Rollers and Index working");
+            }
+        }
+
+        @CreateCommand(name = "processingSpeed")
+        public static class ProcessingSpeed implements IndexerRequest{
+            public double m_rollerSpeed = 0;
+            public double m_indexSpeed = 0;
+            public ProcessingSpeed withRollers(double speed){
+                m_rollerSpeed = speed;
+                return this;
+            }
+            public ProcessingSpeed withIndex(double speed){
+                m_indexSpeed = speed;
+                return this;
+            }
+            @Override
+            public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
+                actor.setRollersSpeed(m_rollerSpeed);
+                actor.setIndexSpeed(m_indexSpeed);
+                return ActionStatus.of(PROCESSING, "Rollers and Index working");
+            }
+        }
 }

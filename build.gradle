@@ -11,6 +11,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+// Los fuentes estan en UTF-8 (acentos en comentarios y strings); sin esto javac usa la
+// codificacion del sistema (windows-1252) y rompe o deforma los acentos.
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)

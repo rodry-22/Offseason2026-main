@@ -5,7 +5,6 @@ import com.stzteam.features.unitprocessor.Unit;
 import com.stzteam.mars.models.singlemodule.Data;
 import com.stzteam.mars.models.singlemodule.IO;
 
-
 @Fallback
 public interface DumperIO extends IO<DumperIO.DumperInputs>{
 
@@ -42,7 +41,6 @@ public interface DumperIO extends IO<DumperIO.DumperInputs>{
         kBACK,
         kFRONT
     }
-
     
     public void setPosition(@Unit(value = "Degrees", group = "Dumper")double angle, DumperMODE mode); 
 

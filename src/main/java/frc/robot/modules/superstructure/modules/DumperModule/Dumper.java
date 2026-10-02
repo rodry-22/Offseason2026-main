@@ -59,8 +59,7 @@ public class Dumper extends ModularSubsystem<DumperInputs, DumperIO> implements 
     @Override 
     public void absolutePeriodic(DumperInputs inputs){
 
-      }
-
+    }
 
     public static class DumperTelemetry extends Telemetry<DumperInputs>{
 
@@ -82,7 +81,7 @@ public class Dumper extends ModularSubsystem<DumperInputs, DumperIO> implements 
 
     @Override
     public Command setControl(Supplier<DumperRequest> request) {
-      return setControl(request);    
+      return runRequest(request);
     }
 
 

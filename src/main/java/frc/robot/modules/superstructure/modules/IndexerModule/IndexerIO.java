@@ -57,6 +57,20 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
      * @param RPM The desired RPM.
      */
 
+    /**
+     * Sets the rollers in duty cycle (-1.0 to 1.0), no closed loop.
+     */
+    public default void setRollersSpeed(double speed) {
+        applyRollers(speed * 12.0);
+    }
+
+    /**
+     * Sets the index in duty cycle (-1.0 to 1.0), no closed loop.
+     */
+    public default void setIndexSpeed(double speed) {
+        applyIndex(speed * 12.0);
+    }
+
     public void stopRollers();
     /**
      * Stops the rollers motor.

@@ -159,9 +159,7 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
             if  (isAtTarget){
                 return ActionStatus.of(Dumper.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
             } else {
-                return ActionStatus.of(
-                    Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(angle)
-                );
+                return ActionStatus.of(Dumper.MOVING_TO_ANGLE, angle);
             }
         }
     }

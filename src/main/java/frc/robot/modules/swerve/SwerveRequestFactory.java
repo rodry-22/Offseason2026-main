@@ -57,9 +57,11 @@ public class SwerveRequestFactory {
         .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
   }
 
-  // Objeto para aplicar velocidades desde PathPlanner
+  // Objeto para aplicar velocidades desde PathPlanner. Velocity cierra el lazo
+  // de velocidad en el TalonFX (Slot0 kS/kV/kA de SysId) en vez de voltaje abierto.
   public static SwerveRequest.ApplyRobotSpeeds pathPlannerRequest() {
-    return new SwerveRequest.ApplyRobotSpeeds();
+    return new SwerveRequest.ApplyRobotSpeeds()
+        .withDriveRequestType(DriveRequestType.Velocity);
   }
 
   public static SwerveRequest.SysIdSwerveTranslation translationCharacterization() {

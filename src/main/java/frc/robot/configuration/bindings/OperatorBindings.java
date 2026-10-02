@@ -15,6 +15,10 @@ public class OperatorBindings implements Binding {
 
       private final double DEADBAND = 0.1;
 
+    private static final double SHOOT_ANGLE = 20.0;
+    private static final double SHOOT_RPM = 3000.0;
+    private static final double TEST_SHOOTER_SPEED = 1; // 70% de potencia
+    private static final double TEST_PROCESS_SPEED = 1; // 40% de potencia
 
     public OperatorBindings(ControllerOI operator, Superstructure superstructure) {
         this.operator = operator;
@@ -42,7 +46,17 @@ public class OperatorBindings implements Binding {
           new Trigger(() -> Math.abs(rightStick.y().getAsDouble()) > DEADBAND);
       Trigger leftStickXTrigger = new Trigger(() -> Math.abs(leftStick.x().getAsDouble()) > DEADBAND);
       Trigger leftStickYTrigger = new Trigger(() -> Math.abs(leftStick.y().getAsDouble()) > DEADBAND);
-            
+
+      // Por ahora solo probamos el Process del indexer
+      bumpers.right().whileTrue(superstructure.ProcessSpeed(TEST_PROCESS_SPEED));
+
+      // Prueba de flywheels del shooter con setSpeed (sin PID)
+      bumpers.left().whileTrue(superstructure.spinShooter(TEST_SHOOTER_SPEED));
+
+      // TODO: ajustar angulo del dumper y RPM del shooter antes de activar estos
+      // triggers.right().whileTrue(superstructure.shoot(0, SHOOT_ANGLE, SHOOT_RPM));
+      // triggers.left().whileTrue(superstructure.intake());
+      // buttons.bottom().onTrue(superstructure.stopAll());
    }
 
 }

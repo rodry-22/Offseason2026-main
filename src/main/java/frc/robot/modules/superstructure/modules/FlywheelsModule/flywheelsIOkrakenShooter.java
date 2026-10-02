@@ -31,7 +31,7 @@ public class flywheelsIOkrakenShooter implements flywheelsIO {
 
         velocityRequest = new VelocityVoltage(0);
 
-        followerShooter.setControl(new Follower(shooterWheelsConstants.shooterLeaderID, MotorAlignmentValue.Opposed));
+        //followerShooter.setControl(new Follower(shooterWheelsConstants.shooterLeaderID, MotorAlignmentValue.Opposed));
 
         configMotor();
     }
@@ -39,11 +39,11 @@ public class flywheelsIOkrakenShooter implements flywheelsIO {
     public void configMotor(){
         var limitConfigs = leaderConfig.CurrentLimits;
 
-    limitConfigs.SupplyCurrentLimit = shooterWheelsConstants.SupplyCurrentLimit;
-    limitConfigs.SupplyCurrentLimitEnable = shooterWheelsConstants.SupplyCurrentLimitEnable;
+    //limitConfigs.SupplyCurrentLimit = shooterWheelsConstants.SupplyCurrentLimit;
+    //limitConfigs.SupplyCurrentLimitEnable = shooterWheelsConstants.SupplyCurrentLimitEnable;
 
-    limitConfigs.StatorCurrentLimit = shooterWheelsConstants.StatorCurrentLimit;
-    limitConfigs.StatorCurrentLimitEnable = shooterWheelsConstants.StatorCurrentLimitEnable;
+    //limitConfigs.StatorCurrentLimit = shooterWheelsConstants.StatorCurrentLimit;
+    //limitConfigs.StatorCurrentLimitEnable = shooterWheelsConstants.StatorCurrentLimitEnable;
 
     var slot0Configs = leaderConfig.Slot0;
 
