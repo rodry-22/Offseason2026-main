@@ -59,52 +59,56 @@ public interface DumperRequest extends Request<DumperInputs, DumperIO>{
                     isHub = true;
                     break; }
         }
+
+        double position = 0;
         
-           if (seesHub && isHub){
-                double distanceToHub = LimelightHelpers.getTargetPose3d_CameraSpace("").getTranslation().getX();
+        if (seesHub && isHub){
+            double distanceToHub = LimelightHelpers.getTargetPose3d_CameraSpace("").getTranslation().getX();
                 //parameters.distance_hub = distanceToHub;      
-                double hub_hieght = 1.85; //meters
-                double gravity = 9.81; //m/s^2
-                double v0 = 0; //initial velocity
-                double v0_2 = v0 * v0;
+            double hub_hieght = 1.85; //meters
+            double gravity = 9.81; //m/s^2
+            double v0 = 0; //initial velocity
+            double v0_2 = v0 * v0;
             
         
-        double discrminant = Math.pow(v0, 4) - gravity * (gravity * Math.pow(distanceToHub, 2) + 2 * hub_hieght * v0_2);
-       if (discrminant < 0) {
-            // No real solution, handle this case appropriately
-            actor.setPosition(0, mode);
-        }
+            double discrminant = Math.pow(v0, 4) - gravity * (gravity * Math.pow(distanceToHub, 2) + 2 * hub_hieght * v0_2);
+            if (discrminant < 0) {
+                // No real solution, handle this case appropriately
+                actor.setPosition(0, mode);
+            }
 
-        double sqrtDiscriminant = Math.sqrt(discrminant);
-        double angle1 = Math.atan((v0_2 + sqrtDiscriminant) / (gravity * distanceToHub));
-        double angle2 = Math.atan((v0_2 - sqrtDiscriminant) / (gravity * distanceToHub));
-        
-        // Choose the appropriate angle based on the mode
-        double chosenAngle;
-        if (mode == DumperMODE.kBACK) {
-            chosenAngle = Math.max(angle1, angle2); // Higher angle for back mode
-        } else {
-            chosenAngle = Math.min(angle1, angle2); // Lower angle for front mode
-        }
+            double sqrtDiscriminant = Math.sqrt(discrminant);
+            double angle1 = Math.atan((v0_2 + sqrtDiscriminant) / (gravity * distanceToHub));
+            double angle2 = Math.atan((v0_2 - sqrtDiscriminant) / (gravity * distanceToHub));
+            
+            // Choose the appropriate angle based on the mode
+            double chosenAngle;
+            if (mode == DumperMODE.kBACK) {
+                chosenAngle = Math.max(angle1, angle2); // Higher angle for back mode
+            } else {
+                chosenAngle = Math.min(angle1, angle2); // Lower angle for front mode
+            }
 
-        // Convert to degrees and set position
-        double position = Units.radiansToDegrees(chosenAngle);
-        parameters.TargetAngle = position;
-        
-        actor.setPosition(position, mode);
-        boolean isAtTarget = MathUtil.isNear(position, parameters.position, 1.0);
-        //SOLO SI .     RETURN ESO, SIEMPRE QUE NO SEA ESO
-        if  (isAtTarget){
-                return ActionStatus.of(Dumper.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
-            } 
-        return ActionStatus.of(
-            Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(position));
+            // Convert to degrees and set position
+            position = Units.radiansToDegrees(chosenAngle);
             
         }
+            parameters.TargetAngle = position;
+            
+            actor.setPosition(position, mode);
+            boolean isAtTarget = MathUtil.isNear(position, parameters.position, 1.0);
+            //SOLO SI .     RETURN ESO, SIEMPRE QUE NO SEA ESO
+            if  (isAtTarget){
+                    return ActionStatus.of(Dumper.ON_TARGET, StatusCodes.TARGETREACHED_STATUS);
+                } 
+            return ActionStatus.of(
+                Dumper.MOVING_TO_ANGLE, StatusCodes.TARGET_STATUS + StatusCodes.angleOf(position));
+                
     }
     }
     
-    // here -> getpose 2d
+    // here -> getpose 2d}
+     
     @CreateCommand(name = "Limiter")
     public static class Limiter implements DumperRequest{
 
