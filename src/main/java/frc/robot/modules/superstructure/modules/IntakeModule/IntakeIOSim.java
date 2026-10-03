@@ -101,7 +101,7 @@ public class IntakeIOSim implements IntakeIO {
     }
 
     @Override 
-    public void setAngulatorPosition(double position) {
+    public void setAngulatorPosition(double position, IntakeMODE mode) {
         isClosedLoop = true;
         this.angulatorTargetAngle = position;
         angulatorController.setGoal(Units.degreesToRotations(position));
@@ -130,6 +130,8 @@ public class IntakeIOSim implements IntakeIO {
         stopRolls();
         stopAngulator();
     }
+
+
 
 
 

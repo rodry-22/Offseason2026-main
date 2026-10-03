@@ -5,6 +5,8 @@ import com.stzteam.features.unitprocessor.Unit;
 import com.stzteam.mars.models.singlemodule.Data;
 import com.stzteam.mars.models.singlemodule.IO;
 
+import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
+
 @Fallback
 public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
 
@@ -29,6 +31,11 @@ public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
 
     }
 
+    public enum IntakeMODE{
+        kBACK,
+        kFRONT
+    }
+
 
     public void setRollsVoltage(@Unit (value = "Volts" , group = "Intake")double volts);
 
@@ -36,7 +43,7 @@ public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
 
     public void stopRolls();
 
-    public void setAngulatorPosition(double position);
+    public void setAngulatorPosition(@Unit(value = "Degrees", group = "Intake")double position, IntakeMODE mode);
 
     public double getAngulatorPosition();
 

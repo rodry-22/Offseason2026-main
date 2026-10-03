@@ -21,6 +21,7 @@
     "IntakeInputs.rollsRPS": "RPS",
     "IntakeInputs.angulatorAppliedVolts": "Volts",
     "IntakeInputs.rollsAppliedVolts": "Volts",
+    "IntakeIO.setAngulatorPosition(position)": "Degrees",
     "IntakeIO.setRollsVoltage(volts)": "Volts",
     "IntakeInputs.angulatorTargetAngle": "Degrees",
     "IntakeInputs.angulatorPosition": "Degrees",
@@ -29,9 +30,9 @@
   "Dumper": {
     "DumperIO.setPosition(angle)": "Degrees",
     "DumperInputs.position": "Degrees",
-    "DumperInputs.VelocityRPS": "RPS",
     "DumperInputs.appliedVolts": "Volts",
     "DumperInputs.TargetAngle": "Degrees",
+    "DumperInputs.VelocityRPM": "RPM",
     "DumperIO.applyOutput(volts)": "Volts"
   }
 }

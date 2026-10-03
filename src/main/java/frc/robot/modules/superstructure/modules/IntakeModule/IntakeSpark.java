@@ -41,17 +41,18 @@
                 .outputRange(IntakeConstants.kMinOutput, IntakeConstants.kMaxOutput);
 
             angulatorConfig.encoder.positionConversionFactor(360.0); //rotaciones a grados
+            angulatorConfig.encoder.velocityConversionFactor(1/IntakeConstants.intakeRatio);
 
             //config de rolls
             var rollsConfig = new SparkMaxConfig();
 
             rollsConfig
-                .encoder.velocityConversionFactor(1.0/(IntakeConstants.intakeRatio*60.0));//RPM a RPS
+                .encoder.velocityConversionFactor(1.0/IntakeConstants.intakeRatio);//RPM
 
             //aplicar config a motores
             
-            angulatorSpark.configure(angulatorConfig,ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-            rollsSpark.configure(rollsConfig,ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+            angulatorSpark.configure(angulatorConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            rollsSpark.configure(rollsConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         }
 
@@ -61,7 +62,7 @@
             inputs.rollsRPS = rollsSpark.getEncoder().getVelocity();
 
             inputs.angulatorAppliedVolts = angulatorSpark.getAppliedOutput() * angulatorSpark.getBusVoltage();
-            inputs.angulatorTargetAngle = angulatorController.getSetpoint() *360.0; //convertir a grados
+            inputs.angulatorTargetAngle = angulatorController.getSetpoint(); //convertir a grados
             inputs.angulatorPosition = getAngulatorPosition(); 
 
         }
@@ -82,7 +83,7 @@
         }
 
         @Override 
-        public void setAngulatorPosition(double position) {
+        public void setAngulatorPosition(double position, IntakeMODE mode) {
             angulatorController.setSetpoint(position, ControlType.kPosition); //kPosition para interpretar como obj de position
         }
 

@@ -110,7 +110,7 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
     //Intake intake = getIntake();
 
     return Commands.parallel(
-        dumper.stop(),
+        dumper.sotop(),
         index.idleIndexer(),
         flywheel.runRequest(() -> FlywheelsRequestFactory.idleIntake()),
         flywheelout.runRequest(() -> FlywheelsRequestFactory.idleOutake())

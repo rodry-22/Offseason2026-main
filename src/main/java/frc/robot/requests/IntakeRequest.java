@@ -1,5 +1,6 @@
 package frc.robot.requests;
 
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.stzteam.features.marsprocessor.CreateCommand;
 import com.stzteam.features.marsprocessor.RequestFactory;
 import com.stzteam.mars.diagnostics.ActionStatus;
@@ -78,22 +79,28 @@ public interface IntakeRequest extends Request<IntakeInputs, IntakeIO> {
     @CreateCommand(name = "setAngulatorPosition")
     public static class SetAngulator implements IntakeRequest {
 
-        private double tPosition = 0.0;
+        private double tPosition = 0.0; 
+        private IntakeIO.IntakeMODE mode = IntakeIO.IntakeMODE.kBACK; 
         
         public SetAngulator withPosition(double degrees) {
-            this.tPosition = degrees / 360.0; //convert degrees to rotations
+            this.tPosition = degrees; 
+            return this;
+        }
+
+         public SetAngulator withMode(IntakeIO.IntakeMODE mode) {
+            this.mode = mode;
             return this;
         }
 
         @Override
         public ActionStatus apply(IntakeInputs data, IntakeIO actor) {
 
-            boolean atPosition = MathUtil.isNear(tPosition*360, data.angulatorPosition, IntakeConstants.toleranceDegrees);
+            boolean atPosition = MathUtil.isNear(tPosition, data.angulatorPosition, IntakeConstants.toleranceDegrees);
 
             if (atPosition) {
                 return ActionStatus.of(ANGULATOR_POSITION, "Angulator is at position");
             } else if (tPosition != 0.0) {
-                actor.setAngulatorPosition(tPosition);
+                actor.setAngulatorPosition(tPosition, mode);
                 return ActionStatus.of(ANGULATOR_TARGET, "Angulator is moving to position");
 
             } else {

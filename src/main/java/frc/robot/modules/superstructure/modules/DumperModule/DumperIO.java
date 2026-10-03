@@ -19,8 +19,8 @@ public interface DumperIO extends IO<DumperIO.DumperInputs>{
         @Unit(value = "Volts", group = "Dumper")
         public double appliedVolts = 0;
 
-        @Unit(value = "RPS", group = "Dumper")
-        public double VelocityRPS = 0;
+        @Unit(value = "RPM", group = "Dumper")
+        public double VelocityRPM = 0;
 
         public double current = 0;
 
@@ -29,7 +29,7 @@ public interface DumperIO extends IO<DumperIO.DumperInputs>{
             DumperInputs clone = new DumperInputs();
             clone.TargetAngle = this.TargetAngle;
             clone.appliedVolts = this.appliedVolts;
-            clone.VelocityRPS = this.VelocityRPS;
+            clone.VelocityRPM = this.VelocityRPM;
             clone.position = this. position;
 
             return clone;

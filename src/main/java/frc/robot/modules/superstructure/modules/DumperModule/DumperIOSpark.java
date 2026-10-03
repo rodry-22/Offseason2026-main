@@ -1,20 +1,77 @@
 package frc.robot.modules.superstructure.modules.DumperModule;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.configuration.constants.TunerConstants;
 import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
 
 public class DumperIOSpark implements DumperIO{
 
+    private final SparkMax angulatorMotor;
+    private final RelativeEncoder angulatorEncoder;
+    private final SparkClosedLoopController angulatorController; //controlador para angulador
+
+    public DumperIOSpark(){
+        angulatorMotor = new SparkMax(Dumperconstants.Angulator_MOTOR_CAN_ID, MotorType.kBrushless);
+        angulatorEncoder = angulatorMotor.getEncoder();
+        angulatorController = angulatorMotor.getClosedLoopController();
+
+        motorConfig();
+    }
+
+    public void motorConfig(){
+
+        var config = new SparkMaxConfig();
+        var profiles = config.closedLoop;
+        angulatorMotor.setCANTimeout(250);
+
+
+        try{
+            profiles
+            .pid(Dumperconstants.kP, Dumperconstants.kI, Dumperconstants.kD, ClosedLoopSlot.kSlot0)
+            .outputRange(Dumperconstants.kMinOutput, Dumperconstants.kMaxOutput, ClosedLoopSlot.kSlot0)
+
+            .pid(Dumperconstants.kP, Dumperconstants.kI, Dumperconstants.kD, ClosedLoopSlot.kSlot1)
+            .outputRange(Dumperconstants.kMinOutput, Dumperconstants.kMaxOutput, ClosedLoopSlot.kSlot1);
+
+            profiles.feedForward.kS(Dumperconstants.kS).kV(Dumperconstants.kV).kA(Dumperconstants.kA);
+
+            config
+            .idleMode(IdleMode.kBrake)
+            .inverted(Dumperconstants.kMotorInverted)
+            .smartCurrentLimit(Dumperconstants.kCurrentLimit)
+            .voltageCompensation(Dumperconstants.kMaxVolts);
+
+            config
+            .softLimit
+            .forwardSoftLimit(Dumperconstants.kUpperLimit)
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimit(Dumperconstants.kLowerLimit)
+            .reverseSoftLimitEnabled(true);
+
+           config
+          .encoder
+          .positionConversionFactor(Dumperconstants.kGearRatio)
+          .velocityConversionFactor(Dumperconstants.kGearRatio);
+
+            angulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
+        } finally {
+      angulatorMotor.setCANTimeout(0);
+    }
+}
+
+    /* 
     private TalonFX angulator;
     private TalonFXConfiguration config;
     private TalonFXConfigurator AngulatorConfigurator;
@@ -65,51 +122,39 @@ public class DumperIOSpark implements DumperIO{
         AngulatorConfigurator.apply(motorConfigs);    
     }
 
+*/
+@Override
+public void updateInputs(DumperInputs inputs){
+    inputs.VelocityRPM = angulatorEncoder.getVelocity();
+    inputs.appliedVolts = angulatorMotor.getAppliedOutput() * angulatorMotor.getBusVoltage();
+    inputs.position = Units.rotationsToDegrees(angulatorEncoder.getPosition());
+}
 
      @Override
     public void setPosition(double angle, DumperMODE mode){
-            switch (mode) {
-      case kBACK:
-        angulator.setControl(
-            motionRequest.withPosition(Units.degreesToRotations(angle)).withSlot(0));
-        break;
+        double targetRotations = Units.degreesToRotations(angle);
+        ClosedLoopSlot slot = (mode == DumperMODE.kBACK) ? ClosedLoopSlot.kSlot0 : ClosedLoopSlot.kSlot1;
 
-      case kFRONT:
-        angulator.setControl(
-            motionRequest.withPosition(Units.degreesToRotations(angle)).withSlot(1));
-        break;
-        }
+        angulatorController.setSetpoint(targetRotations, ControlType.kPosition, slot);
 
     }
 
      @Override
     public void resetPosition(){
-        angulator.setPosition(0);
+        angulatorEncoder.setPosition(0);
     }
 
     @Override
     public void applyOutput(double volts){
-        angulator.setVoltage(volts);
+        angulatorMotor.setVoltage(volts);
     }
 
     @Override
     public void stopAll(){
-        angulator.stopMotor();
+        angulatorMotor.stopMotor();
     }
 
-    @Override 
-    public void updateInputs(DumperInputs inputs){
 
-        var rotorPosSignal = angulator.getPosition();
-        var rotorPosRotations = rotorPosSignal.getValueAsDouble();
-
-        inputs.position = Units.rotationsToDegrees(rotorPosRotations);
-
-        inputs.timestamp = rotorPosSignal.getTimestamp().getLatency();
-
-        inputs.current = angulator.getStatorCurrent().getValueAsDouble();
-
-    }
 
 
     

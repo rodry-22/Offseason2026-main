@@ -59,7 +59,7 @@ public class DumperIOSim implements DumperIO {
         simMotor.update(0.02);
 
         inputs.position = Units.radiansToDegrees(simMotor.getAngleRads());        
-        inputs.VelocityRPS =Units.radiansPerSecondToRotationsPerMinute(simMotor.getVelocityRadPerSec()) / 60;
+        inputs.VelocityRPM =Units.radiansPerSecondToRotationsPerMinute(simMotor.getVelocityRadPerSec()) / 60;
         inputs.TargetAngle = currentTargetAngle.getDegrees();
         inputs.appliedVolts = appliedVolts;
         inputs.current = simMotor.getCurrentDrawAmps();

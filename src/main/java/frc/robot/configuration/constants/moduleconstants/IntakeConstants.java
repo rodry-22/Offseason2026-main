@@ -6,6 +6,8 @@ public class IntakeConstants {
     public static int rollsSparkID = 0;
     public static int angulatorSparkID = 0;
 
+    public static final double kGearRatio = 9;
+
 
 
     //sim
