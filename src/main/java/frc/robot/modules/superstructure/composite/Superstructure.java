@@ -12,6 +12,7 @@ import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
 import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
+import frc.robot.modules.superstructure.modules.IntakeModule.Intake;
 import frc.robot.requests.DumperRequestFactory;
 import frc.robot.requests.FlywheelsRequestFactory;
 import frc.robot.requests.IndexerRequestFactory;
@@ -40,6 +41,10 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
 
     public flywheels getFlywheelsIntake(){
       return getSubsystem(KeyManager.FLYWHEELS_INTAKE_KEY);
+    }
+
+    public Intake getIntake(){
+      return getSubsystem(KeyManager.INTAKE_KEY);
     }
 
     //----------------------------------COMMANDS-------------------------------------------------------------
@@ -107,24 +112,22 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
     flywheels flywheel = getFlywheelsIntake();
     flywheels flywheelout = getFlywheelsShooter();
     Indexer index = getIndexer();
-    //Intake intake = getIntake();
+    Intake intake = getIntake();
 
     return Commands.parallel(
         dumper.sotop(),
         index.idleIndexer(),
         flywheel.runRequest(() -> FlywheelsRequestFactory.idleIntake()),
-        flywheelout.runRequest(() -> FlywheelsRequestFactory.idleOutake())
-
-        
+        flywheelout.runRequest(() -> FlywheelsRequestFactory.idleOutake()),
+        intake.stop()  
     );
     
  }
- /* 
-  @Override
+ 
   public SuperstructureData getState() {
     return inputs;
   }
-    */
+    
 
 
 @Override

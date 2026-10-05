@@ -1,6 +1,5 @@
 package frc.robot.requests;
 
-import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.stzteam.features.marsprocessor.CreateCommand;
 import com.stzteam.features.marsprocessor.RequestFactory;
 import com.stzteam.mars.diagnostics.ActionStatus;
