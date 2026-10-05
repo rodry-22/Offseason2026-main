@@ -4,10 +4,16 @@ package frc.robot.modules.superstructure.composite;
 import com.stzteam.mars.models.SubsystemBuilder;
 import com.stzteam.mars.models.multimodules.CompositeSubsystem;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.configuration.KeyManager;
 import frc.robot.configuration.constants.Constants;
+import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
@@ -104,6 +110,63 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
 
       return index.setControl(
           () -> IndexerRequestFactory.processingSpeed().withRollers(-speed).withIndex(-speed));
+    }
+
+
+    // ---------------------------------- DISPARO ----------------------------------
+    private static final double kFeedSpeed = 1.0; // duty; ProcessSpeed ya invierte el signo para alimentar
+
+    /** Disparo con angulo y RPM fijos. Util para medir puntos de la tabla de tiro. */
+    public Command shoot(double dumperAngleDeg, double shooterRPM) {
+      return shootInternal(() -> dumperAngleDeg, () -> shooterRPM);
+    }
+
+    /** Disparo automatico: angulo y RPM salen de las tablas de Constants segun la distancia al hub. */
+    public Command shootAtDistance(DoubleSupplier distanceMeters) {
+      return shootInternal(
+          () -> Constants.DUMPER_ANGLE_MAP.get(distanceMeters.getAsDouble()),
+          () -> Constants.SHOOTER_RPM_MAP.get(distanceMeters.getAsDouble()));
+    }
+
+    private Command shootInternal(DoubleSupplier angleDeg, DoubleSupplier rpm) {
+      flywheels shooter = getFlywheelsShooter();
+      Dumper dumper = getDumper();
+      Indexer index = getIndexer();
+
+      DoubleSupplier clampedAngle =
+          () ->
+              MathUtil.clamp(
+                  angleDeg.getAsDouble(),
+                  Dumperconstants.kLowerLimitDeg,
+                  Dumperconstants.kUpperLimitDeg);
+
+      // "Listo" se calcula contra el objetivo deseado, no contra inputs.TargetAngle/targetRPM:
+      // esos valen 0 antes del primer ciclo y darian un falso "en objetivo" que alimenta de golpe.
+      BooleanSupplier ready =
+          () ->
+              Math.abs(shooter.getState().velocityRPM - rpm.getAsDouble())
+                      <= Constants.FLYWHEEL_TOLERANCE
+                  && Math.abs(dumper.getState().position - clampedAngle.getAsDouble())
+                      <= Dumperconstants.kToleranceDeg;
+      Trigger readyStable = new Trigger(ready).debounce(0.15);
+
+      // Shooter y dumper se mantienen activos mientras el comando viva (whileTrue);
+      // el indexer solo alimenta cuando ambos estan en objetivo de forma estable.
+      return Commands.parallel(
+          shooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(rpm.getAsDouble())),
+          dumper.setControl(
+              () ->
+                  DumperRequestFactory.setAngle()
+                      .withAngle(clampedAngle.getAsDouble())
+                      .withMode(DumperMODE.kFRONT)
+                      .Tolerance(Dumperconstants.kToleranceDeg)),
+          Commands.sequence(
+              Commands.waitUntil(readyStable),
+              index.setControl(
+                  () ->
+                      IndexerRequestFactory.processingSpeed()
+                          .withRollers(-kFeedSpeed)
+                          .withIndex(-kFeedSpeed))));
     }
 
     public Command stopAll() {

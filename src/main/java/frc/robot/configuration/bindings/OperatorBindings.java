@@ -3,7 +3,10 @@ package frc.robot.configuration.bindings;
 import com.stzteam.mars.operator.ControllerOI;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
 import frc.robot.modules.superstructure.composite.Superstructure;
+import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE;
+import frc.robot.requests.DumperRequestFactory;
 import com.stzteam.mars.models.containers.Binding;
 
 public class OperatorBindings implements Binding {
@@ -46,14 +49,31 @@ public class OperatorBindings implements Binding {
       Trigger leftStickXTrigger = new Trigger(() -> Math.abs(leftStick.x().getAsDouble()) > DEADBAND);
       Trigger leftStickYTrigger = new Trigger(() -> Math.abs(leftStick.y().getAsDouble()) > DEADBAND);
 
+
+      
+
       // Por ahora solo probamos el Process del indexer
       bumpers.right().whileTrue(superstructure.ProcessSpeed(TEST_PROCESS_SPEED));
 
       // Prueba de flywheels del shooter con setSpeed (sin PID)
       bumpers.left().whileTrue(superstructure.spinShooter(TEST_SHOOTER_SPEED));
 
-      // TODO: ajustar angulo del dumper y RPM del shooter antes de activar estos
-      // triggers.right().whileTrue(superstructure.shoot(0, SHOOT_ANGLE, SHOOT_RPM));
+      // Disparo con valores fijos (SHOOT_ANGLE / SHOOT_RPM). Activar SOLO despues de calibrar el
+      // dumper (pasos 0-3 de la guia) y de verificar que el shooter gira en el sentido correcto.
+      triggers.right().whileTrue(superstructure.shoot(SHOOT_ANGLE, SHOOT_RPM));
+
+      // ---------------- CALIBRACION DEL DUMPER (temporal, solo con kTuningMode) ----------------
+      if (Dumperconstants.kTuningMode) {
+        var dumper = superstructure.getDumper();
+        // Stick izquierdo (Y) = voltaje manual +-3 V. Sirve para medir kG/kS. Si va al reves, invierte el signo.
+        leftStickYTrigger.whileTrue(
+            dumper.setControl(
+                () -> DumperRequestFactory.moveVoltage().withvolVolts(leftStick.y().getAsDouble() * 3.0)));
+        // Escalon de posicion para ver la respuesta del PID en AdvantageScope.
+        buttons.top().onTrue(dumper.setAngle(30.0, DumperMODE.kFRONT, Dumperconstants.kToleranceDeg));
+        buttons.bottom().onTrue(dumper.setAngle(5.0, DumperMODE.kFRONT, Dumperconstants.kToleranceDeg));
+      }
+
       // triggers.left().whileTrue(superstructure.intake());
       // buttons.bottom().onTrue(superstructure.stopAll());
    }

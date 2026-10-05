@@ -19,6 +19,8 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -33,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.KeyManager;
+import frc.robot.configuration.constants.Constants;
 import frc.robot.configuration.constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.configuration.constants.moduleconstants.SwerveConstants;
 import frc.robot.utils.LimelightHelpers;
@@ -56,6 +59,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
   private MarsSimGlue m_marsGlue = null;
 
   private double GravityFactor = 9.80665;
+
+  // ---- Filtros de vision (puntos de partida; ajustar con los logs de VisionAccepted) ----
+  /** Limelight recomienda rechazar MegaTag2 por encima de ~720 deg/s. */
+  private static final double kMaxYawRateDegPerSec = 720.0;
+  /** Aceleracion plana maxima (m/s^2) para aceptar una medicion (choques / golpes). */
+  private static final double kMaxAccelMps2 = 6.0;
+  /** Mas lejos que esto el ruido de la camara es demasiado alto para corregir la pose. */
+  private static final double kMaxTagDistMeters = 5.0;
+  /** Desviacion estandar XY = base + k * distancia^2 / numero_de_tags (metros). */
+  private static final double kVisionBaseStd = 0.1;
+  private static final double kVisionDistStd = 0.05;
 
   private final Field2d field = new Field2d();
   public final String limelightName = "limelight";
@@ -382,24 +396,65 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
 
   private void updateLimeVision() {
 
-    LimelightHelpers.PoseEstimate mt2 =
-        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+    boolean accepted = false;
+    try {
+      if (!LimelightHelpers.getTV(limelightName)) return;
 
-    if (!LimelightHelpers.getTV(limelightName)) {
-      return;
+      LimelightHelpers.PoseEstimate mt2 =
+          LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+
+      if (mt2 == null || mt2.tagCount == 0) return;
+      if (mt2.avgTagDist > kMaxTagDistMeters) return;
+
+      if (Math.abs(this.getPigeon2().getAngularVelocityZWorld().getValueAsDouble())
+          > kMaxYawRateDegPerSec) return;
+
+      double ax = this.getPigeon2().getAccelerationX().getValueAsDouble() * GravityFactor;
+      double ay = this.getPigeon2().getAccelerationY().getValueAsDouble() * GravityFactor;
+      if (Math.hypot(ax, ay) > kMaxAccelMps2) return;
+
+      // Pose basura: (0,0) exacto, NaN o fuera de la cancha.
+      Translation2d p = mt2.pose.getTranslation();
+      if (Double.isNaN(p.getX()) || Double.isNaN(p.getY())) return;
+      if (p.getNorm() < 1e-6) return;
+      if (p.getX() < 0 || p.getX() > Constants.FIELD_LENGTH_METERS) return;
+      if (p.getY() < 0 || p.getY() > Constants.FIELD_WIDTH_METERS) return;
+
+      double xyStd =
+          kVisionBaseStd + kVisionDistStd * mt2.avgTagDist * mt2.avgTagDist / mt2.tagCount;
+
+      NetworkIO.set("Chasis", "Mt2", mt2.pose);
+      NetworkIO.set("Chasis", "VisionTagDist", mt2.avgTagDist);
+      NetworkIO.set("Chasis", "VisionStdDev", xyStd);
+
+      // Theta enorme: el heading lo manda el Pigeon, la vision solo corrige X/Y.
+      addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(xyStd, xyStd, 9999999));
+      accepted = true;
+    } finally {
+      NetworkIO.set("Chasis", "VisionAccepted", accepted);
     }
+  }
 
-    if (mt2 == null || mt2.tagCount == 0) return;
+  /**
+   * Distancia (m) desde la salida del shooter hasta el centro del hub, calculada con la pose
+   * fusionada (odometria + vision). No depende de ver un tag en este instante.
+   */
+  public double getDistanceToHub() {
+    boolean red = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
+    Translation2d hub =
+        red
+            ? new Translation2d(
+                Constants.FIELD_LENGTH_METERS - Constants.HUB_BLUE.getX(),
+                Constants.FIELD_WIDTH_METERS - Constants.HUB_BLUE.getY())
+            : Constants.HUB_BLUE;
 
-    if (Math.abs(this.getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 85) return;
+    Translation2d shooter =
+        getState()
+            .Pose
+            .transformBy(new Transform2d(Constants.ROBOT_TO_SHOOTER, Rotation2d.kZero))
+            .getTranslation();
 
-    if (Math.abs(this.getPigeon2().getAccelerationX().getValueAsDouble() * GravityFactor) >= 2.5
-        || Math.abs(this.getPigeon2().getAccelerationY().getValueAsDouble() * GravityFactor) >= 2.5)
-      return;
-
-    NetworkIO.set("Chasis", "Mt2", mt2.pose);
-
-    addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(.3, .3, 9999999));
+    return shooter.getDistance(hub);
   }
 
   public double getDistanceToTag() {
@@ -554,5 +609,3 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
   }
 
 }
-
-
