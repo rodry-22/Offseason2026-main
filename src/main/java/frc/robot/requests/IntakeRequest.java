@@ -93,21 +93,34 @@ public interface IntakeRequest extends Request<IntakeInputs, IntakeIO> {
 
         @Override
         public ActionStatus apply(IntakeInputs data, IntakeIO actor) {
+            // Se manda SIEMPRE el setpoint. Antes, un objetivo de 0 (guardado) caia en
+            // stopAngulator() y el brazo nunca subia; ademas la tolerancia era 0.
+            actor.setAngulatorPosition(tPosition, mode);
 
             boolean atPosition = MathUtil.isNear(tPosition, data.angulatorPosition, IntakeConstants.toleranceDegrees);
 
             if (atPosition) {
                 return ActionStatus.of(ANGULATOR_POSITION, "Angulator is at position");
-            } else if (tPosition != 0.0) {
-                actor.setAngulatorPosition(tPosition, mode);
-                return ActionStatus.of(ANGULATOR_TARGET, "Angulator is moving to position");
-
-            } else {
-                actor.stopAngulator();
-                return ActionStatus.of(STOP, "Angulator is idle");
             }
+            return ActionStatus.of(ANGULATOR_TARGET, "Angulator is moving to position");
+        }
+    }
 
+    // Voltaje manual del angulador: para medir kG/kS y verificar el sentido del motor.
+    @CreateCommand(name = "angulatorVolts")
+    public static class SetAngulatorVolts implements IntakeRequest {
 
+        private double volts = 0.0;
+
+        public SetAngulatorVolts withVolts(double volts) {
+            this.volts = volts;
+            return this;
+        }
+
+        @Override
+        public ActionStatus apply(IntakeInputs data, IntakeIO actor) {
+            actor.setAngulatorVoltage(volts);
+            return ActionStatus.of(ANGULATOR_VOLTS, "Angulator manual volts");
         }
     }
 

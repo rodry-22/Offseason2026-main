@@ -4,9 +4,11 @@ import com.stzteam.mars.operator.ControllerOI;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
+import frc.robot.configuration.constants.moduleconstants.IntakeConstants;
 import frc.robot.modules.superstructure.composite.Superstructure;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE;
 import frc.robot.requests.DumperRequestFactory;
+import frc.robot.requests.IntakeRequestFactory;
 import com.stzteam.mars.models.containers.Binding;
 
 public class OperatorBindings implements Binding {
@@ -49,9 +51,6 @@ public class OperatorBindings implements Binding {
       Trigger leftStickXTrigger = new Trigger(() -> Math.abs(leftStick.x().getAsDouble()) > DEADBAND);
       Trigger leftStickYTrigger = new Trigger(() -> Math.abs(leftStick.y().getAsDouble()) > DEADBAND);
 
-
-      
-
       // Por ahora solo probamos el Process del indexer
       bumpers.right().whileTrue(superstructure.ProcessSpeed(TEST_PROCESS_SPEED));
 
@@ -59,8 +58,20 @@ public class OperatorBindings implements Binding {
       bumpers.left().whileTrue(superstructure.spinShooter(TEST_SHOOTER_SPEED));
 
       // Disparo con valores fijos (SHOOT_ANGLE / SHOOT_RPM). Activar SOLO despues de calibrar el
-      // dumper (pasos 0-3 de la guia) y de verificar que el shooter gira en el sentido correcto.
+      // dumper  y de verificar que el shooter gira en el sentido correcto.
       triggers.right().whileTrue(superstructure.shoot(SHOOT_ANGLE, SHOOT_RPM));
+
+      // Intake: baja el brazo y luego mete pelotas mientras se mantiene; al soltar, sube.
+      triggers.left().whileTrue(superstructure.intakeBalls()).onFalse(superstructure.retractIntake());
+
+      // ---------------- CALIBRACION DEL INTAKE (temporal, solo con kAngulatorTuningMode) ----------------
+      if (IntakeConstants.kAngulatorTuningMode) {
+        var intake = superstructure.getIntake();
+        // Stick derecho (Y) = voltaje manual +-3 V al angulador. Si va al reves, invierte el signo.
+        rightStickYTrigger.whileTrue(
+            intake.setControl(
+                () -> IntakeRequestFactory.setAngulatorVolts().withVolts(rightStick.y().getAsDouble() * 3.0)));
+      }
 
       // ---------------- CALIBRACION DEL DUMPER (temporal, solo con kTuningMode) ----------------
       if (Dumperconstants.kTuningMode) {
@@ -83,4 +94,7 @@ public class OperatorBindings implements Binding {
 
 
 
-}
+}       
+
+
+

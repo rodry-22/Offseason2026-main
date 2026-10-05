@@ -33,6 +33,14 @@ public class Intake extends ModularSubsystem<IntakeInputs, IntakeIO> implements 
     }
 
 
+    public IntakeInputs getState() {
+        return inputs;
+    }
+
+    public boolean isAtTarget(double toleranceDegrees) {
+        return Math.abs(inputs.angulatorTargetAngle - inputs.angulatorPosition) <= toleranceDegrees;
+    }
+
     @Override
     public Command setControl(Supplier<IntakeRequest> request) {
         return runRequest(request);
@@ -48,9 +56,9 @@ public class Intake extends ModularSubsystem<IntakeInputs, IntakeIO> implements 
         public static final String RPM_ROLLS_KEY = CommonTables.RPM_KEY + "Intake";
         public static final String VOLTS_ROLLS_KEY = CommonTables.VOLTAGE_KEY + "Intake";
         
-        public static final String VOLTS_ANGULATOR_KEY = CommonTables.VOLTAGE_KEY + "Intake";
-        public static final String ANGULATOR_TARGET_POSITION_KEY = CommonTables.TARGET_KEY + "Intake";
-        public static final String ANGULATOR_POSITION_KEY = CommonTables.POSITION_KEY + "Intake";
+        public static final String VOLTS_ANGULATOR_KEY = CommonTables.VOLTAGE_KEY + "IntakeAngulator";
+        public static final String ANGULATOR_TARGET_POSITION_KEY = CommonTables.TARGET_KEY + "IntakeAngulator";
+        public static final String ANGULATOR_POSITION_KEY = CommonTables.POSITION_KEY + "IntakeAngulator";
 
         @Override
         public void telemeterize(IntakeInputs data) {

@@ -23,6 +23,7 @@
     "IntakeInputs.rollsAppliedVolts": "Volts",
     "IntakeIO.setAngulatorPosition(position)": "Degrees",
     "IntakeIO.setRollsVoltage(volts)": "Volts",
+    "IntakeIO.setAngulatorVoltage(volts)": "Volts",
     "IntakeInputs.angulatorTargetAngle": "Degrees",
     "IntakeInputs.angulatorPosition": "Degrees",
     "IntakeIO.setRollsRPS(rps)": "RPS"

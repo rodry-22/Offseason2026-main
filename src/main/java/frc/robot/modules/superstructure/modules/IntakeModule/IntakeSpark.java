@@ -1,113 +1,179 @@
-    package frc.robot.modules.superstructure.modules.IntakeModule;
-    import com.revrobotics.PersistMode;
-    import com.revrobotics.RelativeEncoder;
-    import com.revrobotics.ResetMode;
-    import com.revrobotics.spark.SparkBase.ControlType;
-    import com.revrobotics.spark.SparkClosedLoopController;
-    import com.revrobotics.spark.SparkLowLevel.MotorType;
-    import com.revrobotics.spark.SparkMax;
-    import com.revrobotics.spark.config.SparkMaxConfig;
+package frc.robot.modules.superstructure.modules.IntakeModule;
 
-    import frc.robot.configuration.constants.moduleconstants.IntakeConstants;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
-    public class IntakeSpark implements IntakeIO{
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.configuration.constants.moduleconstants.IntakeConstants;
 
-        private final SparkMax rollsSpark;
-        private final SparkMax angulatorSpark;
-        private final RelativeEncoder angulatorEncoder; //encoder para angulador
-        private final SparkClosedLoopController rollsController; //controlador para angulador
-        private final SparkClosedLoopController angulatorController; //controlador para angulador
-        
-        public IntakeSpark() {
+public class IntakeSpark implements IntakeIO{
 
-            //motores
-            this.rollsSpark = new SparkMax (IntakeConstants.rollsSparkID, MotorType.kBrushless);
-            this.angulatorSpark = new SparkMax (IntakeConstants.angulatorSparkID, MotorType.kBrushless);
+    private final SparkMax rollsSpark;
+    private final SparkMax angulatorSpark;
+    private final RelativeEncoder angulatorEncoder; //encoder para angulador
+    private final SparkClosedLoopController rollsController;
+    private final SparkClosedLoopController angulatorController;
 
-            //encoder
-            this.angulatorEncoder = angulatorSpark.getEncoder(); //encoder de angulator
+    // Valores "vivos": arrancan con las constantes y, en modo tuning, se editan desde el Dashboard.
+    private double kP = IntakeConstants.kAngulatorP;
+    private double kI = IntakeConstants.kAngulatorI;
+    private double kD = IntakeConstants.kAngulatorD;
+    private double kG = IntakeConstants.kAngulatorG;
+    private double kS = IntakeConstants.kAngulatorS;
 
-            //closed loop controllers
-            this.rollsController = rollsSpark.getClosedLoopController(); //para obtener control velocidad de rolls
-            this.angulatorController = angulatorSpark.getClosedLoopController(); //obtener control posicion de angulador
+    public IntakeSpark() {
 
+        //motores
+        this.rollsSpark = new SparkMax (IntakeConstants.rollsSparkID, MotorType.kBrushless);
+        this.angulatorSpark = new SparkMax (IntakeConstants.angulatorSparkID, MotorType.kBrushless);
 
-            //config de angulator
-            var angulatorConfig = new SparkMaxConfig(); //crear config, convertir valores 
+        //encoder
+        this.angulatorEncoder = angulatorSpark.getEncoder();
 
-            var angulatorProfiles = angulatorConfig.closedLoop;  
+        //closed loop controllers
+        this.rollsController = rollsSpark.getClosedLoopController();
+        this.angulatorController = angulatorSpark.getClosedLoopController();
 
-            angulatorProfiles.pid(IntakeConstants.kP, IntakeConstants.kI, IntakeConstants.kD)
-                .outputRange(IntakeConstants.kMinOutput, IntakeConstants.kMaxOutput);
+        //config de angulator
+        var angulatorConfig = new SparkMaxConfig();
 
-            angulatorConfig.encoder.positionConversionFactor(360.0); //rotaciones a grados
-            angulatorConfig.encoder.velocityConversionFactor(1/IntakeConstants.intakeRatio);
+        angulatorConfig.closedLoop
+            .pid(kP, kI, kD, ClosedLoopSlot.kSlot0)
+            .outputRange(IntakeConstants.kAngulatorMinOutput, IntakeConstants.kAngulatorMaxOutput, ClosedLoopSlot.kSlot0);
 
-            //config de rolls
-            var rollsConfig = new SparkMaxConfig();
+        angulatorConfig
+            .idleMode(IdleMode.kBrake)
+            .inverted(IntakeConstants.kAngulatorInverted)
+            .smartCurrentLimit(IntakeConstants.kAngulatorCurrentLimit)
+            .voltageCompensation(IntakeConstants.kMaxVolts);
 
-            rollsConfig
-                .encoder.velocityConversionFactor(1.0/IntakeConstants.intakeRatio);//RPM
+        // Soft limits en GRADOS: no deja subir mas del tope guardado ni bajar mas del piso.
+        angulatorConfig.softLimit
+            .reverseSoftLimit(IntakeConstants.kStowAngleDeg - IntakeConstants.kSoftLimitMarginDeg)
+            .reverseSoftLimitEnabled(true)
+            .forwardSoftLimit(IntakeConstants.kDeployAngleDeg + IntakeConstants.kSoftLimitMarginDeg)
+            .forwardSoftLimitEnabled(true);
 
-            //aplicar config a motores
-            
-            angulatorSpark.configure(angulatorConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-            rollsSpark.configure(rollsConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // Grados de BRAZO por vuelta de motor (360 / reduccion). Antes era 360 sin dividir por la reduccion.
+        angulatorConfig.encoder
+            .positionConversionFactor(IntakeConstants.kDegreesPerMotorRotation)
+            .velocityConversionFactor(IntakeConstants.kDegreesPerMotorRotation / 60.0);
 
+        //config de rolls
+        var rollsConfig = new SparkMaxConfig();
+        rollsConfig.encoder.velocityConversionFactor(1.0/IntakeConstants.intakeRatio);//RPM
+
+        //aplicar config a motores
+        angulatorSpark.configure(angulatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rollsSpark.configure(rollsConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        if (IntakeConstants.kAngulatorTuningMode) {
+            SmartDashboard.putNumber("Intake/kP", kP);
+            SmartDashboard.putNumber("Intake/kI", kI);
+            SmartDashboard.putNumber("Intake/kD", kD);
+            SmartDashboard.putNumber("Intake/kG", kG);
+            SmartDashboard.putNumber("Intake/kS", kS);
         }
-
-        @Override
-        public void updateInputs(IntakeInputs inputs){
-            inputs.rollsAppliedVolts = rollsSpark.getAppliedOutput() * rollsSpark.getBusVoltage();
-            inputs.rollsRPS = rollsSpark.getEncoder().getVelocity();
-
-            inputs.angulatorAppliedVolts = angulatorSpark.getAppliedOutput() * angulatorSpark.getBusVoltage();
-            inputs.angulatorTargetAngle = angulatorController.getSetpoint(); //convertir a grados
-            inputs.angulatorPosition = getAngulatorPosition(); 
-
-        }
-
-        @Override 
-        public void setRollsVoltage(double volts) {
-            rollsSpark.setVoltage(volts);
-        }
-
-        @Override 
-        public void setRollsRPS(double rps) {
-            rollsController.setSetpoint(rps, ControlType.kVelocity); //kVelocity para interpretar como obj de velocidad, no voltaje
-        }
-
-        @Override
-        public void stopRolls() {
-            rollsSpark.set(0);
-        }
-
-        @Override 
-        public void setAngulatorPosition(double position, IntakeMODE mode) {
-            angulatorController.setSetpoint(position, ControlType.kPosition); //kPosition para interpretar como obj de position
-        }
-
-        @Override 
-        public double getAngulatorPosition() {
-            return angulatorEncoder.getPosition(); 
-        }
-        
-
-        @Override
-        public void resetAngulator() {
-            angulatorEncoder.setPosition(0);
-        }
-
-        @Override 
-        public void stopAngulator() {
-            double currentPosition = angulatorEncoder.getPosition();
-            angulatorController.setSetpoint(currentPosition, ControlType.kPosition);
-        }
-
-        @Override
-        public void stopAll() {
-            stopRolls();
-            stopAngulator();
-        }
-
     }
+
+    /** Lee las ganancias del Dashboard y, si cambiaron kP/kI/kD, las manda al Spark sin tocar lo demas. */
+    private void pollTuning() {
+        if (!IntakeConstants.kAngulatorTuningMode) return;
+
+        double p = SmartDashboard.getNumber("Intake/kP", kP);
+        double i = SmartDashboard.getNumber("Intake/kI", kI);
+        double d = SmartDashboard.getNumber("Intake/kD", kD);
+        kG = SmartDashboard.getNumber("Intake/kG", kG);
+        kS = SmartDashboard.getNumber("Intake/kS", kS);
+
+        if (p != kP || i != kI || d != kD) {
+            kP = p; kI = i; kD = d;
+            var cfg = new SparkMaxConfig();
+            cfg.closedLoop.pid(kP, kI, kD, ClosedLoopSlot.kSlot0);
+            angulatorSpark.configureAsync(cfg, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        }
+    }
+
+    /** Manda el setpoint con el feedforward de gravedad/friccion en volts. */
+    private void commandPosition(double targetDeg) {
+        double target = MathUtil.clamp(
+            targetDeg,
+            IntakeConstants.kStowAngleDeg - IntakeConstants.kSoftLimitMarginDeg,
+            IntakeConstants.kDeployAngleDeg + IntakeConstants.kSoftLimitMarginDeg);
+
+        double error = target - angulatorEncoder.getPosition();
+        double ffVolts =
+            kG * Math.cos(Math.toRadians(target + IntakeConstants.kAngulatorCosOffsetDeg))
+            + kS * Math.signum(error);
+
+        angulatorController.setSetpoint(target, ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVolts);
+    }
+
+    @Override
+    public void updateInputs(IntakeInputs inputs){
+        pollTuning();
+
+        inputs.rollsAppliedVolts = rollsSpark.getAppliedOutput() * rollsSpark.getBusVoltage();
+        inputs.rollsRPS = rollsSpark.getEncoder().getVelocity();
+
+        inputs.angulatorAppliedVolts = angulatorSpark.getAppliedOutput() * angulatorSpark.getBusVoltage();
+        inputs.angulatorTargetAngle = angulatorController.getSetpoint();
+        inputs.angulatorPosition = getAngulatorPosition();
+    }
+
+    @Override
+    public void setRollsVoltage(double volts) {
+        rollsSpark.setVoltage(volts);
+    }
+
+    @Override
+    public void setRollsRPS(double rps) {
+        rollsController.setSetpoint(rps, ControlType.kVelocity); //kVelocity para interpretar como obj de velocidad, no voltaje
+    }
+
+    @Override
+    public void stopRolls() {
+        rollsSpark.set(0);
+    }
+
+    @Override
+    public void setAngulatorPosition(double position, IntakeMODE mode) {
+        commandPosition(position); // el modo no cambia ganancias todavia (un solo slot)
+    }
+
+    @Override
+    public void setAngulatorVoltage(double volts) {
+        angulatorSpark.setVoltage(volts);
+    }
+
+    @Override
+    public double getAngulatorPosition() {
+        return angulatorEncoder.getPosition();
+    }
+
+    @Override
+    public void resetAngulator() {
+        angulatorEncoder.setPosition(IntakeConstants.kStowAngleDeg);
+    }
+
+    @Override
+    public void stopAngulator() {
+        // Mantiene la posicion actual (con feedforward para que la gravedad no la vaya bajando).
+        commandPosition(angulatorEncoder.getPosition());
+    }
+
+    @Override
+    public void stopAll() {
+        stopRolls();
+        stopAngulator();
+    }
+}

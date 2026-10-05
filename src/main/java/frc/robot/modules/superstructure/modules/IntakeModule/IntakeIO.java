@@ -45,6 +45,8 @@ public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
 
     public void setAngulatorPosition(@Unit(value = "Degrees", group = "Intake")double position, IntakeMODE mode);
 
+    public void setAngulatorVoltage(@Unit(value = "Volts", group = "Intake") double volts); //manual, para calibrar
+
     public double getAngulatorPosition();
 
     public void resetAngulator(); //reset encoder pos to 0

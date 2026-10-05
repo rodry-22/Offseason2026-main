@@ -108,6 +108,12 @@ public class IntakeIOSim implements IntakeIO {
     }
     
     @Override
+    public void setAngulatorVoltage(double volts) {
+        isClosedLoop = false;
+        angulatorAppliedVolts = volts;
+    }
+
+    @Override
     public double getAngulatorPosition() {
         return Units.radiansToDegrees(angulatorSim.getAngleRads());
     }

@@ -14,11 +14,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.configuration.KeyManager;
 import frc.robot.configuration.constants.Constants;
 import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
+import frc.robot.configuration.constants.moduleconstants.IntakeConstants;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
 import frc.robot.modules.superstructure.modules.IndexerModule.Indexer;
 import frc.robot.modules.superstructure.modules.IntakeModule.Intake;
+import frc.robot.modules.superstructure.modules.IntakeModule.IntakeIO.IntakeMODE;
 import frc.robot.requests.DumperRequestFactory;
 import frc.robot.requests.FlywheelsRequestFactory;
 import frc.robot.requests.IndexerRequestFactory;
@@ -167,6 +169,44 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
                       IndexerRequestFactory.processingSpeed()
                           .withRollers(-kFeedSpeed)
                           .withIndex(-kFeedSpeed))));
+    }
+
+    // ---------------------------------- INTAKE ----------------------------------
+    /**
+     * Baja el brazo y, SOLO cuando llego abajo, enciende las flywheels del intake.
+     * Usar con whileTrue: al soltar se cancela y las flywheels se apagan solas (default idle).
+     * Para que el brazo suba al soltar, encadenar .onFalse(retractIntake()).
+     */
+    public Command intakeBalls() {
+      Intake intake = getIntake();
+      flywheels intakeWheels = getFlywheelsIntake();
+
+      Trigger deployed =
+          new Trigger(
+                  () ->
+                      Math.abs(intake.getState().angulatorPosition - IntakeConstants.kDeployAngleDeg)
+                          <= IntakeConstants.toleranceDegrees)
+              .debounce(0.1);
+
+      return Commands.parallel(
+          intake.setAngulatorPosition(IntakeConstants.kDeployAngleDeg, IntakeMODE.kFRONT),
+          Commands.sequence(
+              Commands.waitUntil(deployed),
+              intakeWheels.setControl(
+                  () -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts))));
+    }
+
+    /** Sube el brazo a la posicion guardada y termina (despues el default lo mantiene ahi). */
+    public Command retractIntake() {
+      Intake intake = getIntake();
+
+      return intake
+          .setAngulatorPosition(IntakeConstants.kStowAngleDeg, IntakeMODE.kBACK)
+          .until(
+              () ->
+                  Math.abs(intake.getState().angulatorPosition - IntakeConstants.kStowAngleDeg)
+                      <= IntakeConstants.toleranceDegrees)
+          .withTimeout(2.0);
     }
 
     public Command stopAll() {
