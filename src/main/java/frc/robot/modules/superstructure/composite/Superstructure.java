@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.configuration.KeyManager;
 import frc.robot.configuration.constants.Constants;
 import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
+import frc.robot.configuration.constants.moduleconstants.IndexerConstants;
 import frc.robot.configuration.constants.moduleconstants.IntakeConstants;
+import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants;
 import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
 import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE;
 import frc.robot.modules.superstructure.modules.FlywheelsModule.flywheels;
@@ -88,87 +90,147 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
           intakeWheels.setControl(() -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)));
   }
 
+//   public Command spinShooterRPM(double rpm){
+//      flywheels flywheelShooter = getFlywheelsShooter();
+
+//      return flywheelShooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(rpm));
+//    }
 
 
-    public Command Process(){
-      Indexer index = getIndexer();
 
-      // Voltaje en vez de RPM: el SparkMax no tiene PID configurado (kP = 0),
-      // asi que un setpoint de velocidad no mueve el motor.
-      return index.setControl(
-          () -> IndexerRequestFactory.processing().withRollers(feedVolts).withIndex(feedVolts));
+//    public Command Process(){
+//      Indexer index = getIndexer();
+
+//      // Voltaje en vez de RPM: el SparkMax no tiene PID configurado (kP = 0),
+//      // asi que un setpoint de velocidad no mueve el motor.
+//      return index.setControl(
+//          () -> IndexerRequestFactory.processing().withRollers(feedVolts).withIndex(feedVolts));
+//    }
+
+//    // Sin PID: mueve el shooter en duty cycle (-1.0 a 1.0)
+//    public Command spinShooter(double speed){
+//      flywheels flywheelShooter = getFlywheelsShooter();
+
+//      return flywheelShooter.setControl(() -> FlywheelsRequestFactory.moveSpeed().whiSpeed(speed));
+//    }
+
+//    // Process sin PID, en duty cycle. Negativo = feedear (positivo expulsaba)
+//    public Command ProcessSpeed(double speed){
+//      Indexer index = getIndexer();
+
+//      return index.setControl(
+//          () -> IndexerRequestFactory.processingSpeed().withRollers(-speed).withIndex(-speed));
+//    }
+
+
+//    // ---------------------------------- DISPARO ----------------------------------
+//    private static final double kFeedSpeed = 1.0; // duty; ProcessSpeed ya invierte el signo para alimentar
+
+//    /** Disparo con angulo y RPM fijos. Util para medir puntos de la tabla de tiro. */
+//    public Command shoot(double dumperAngleDeg, double shooterRPM) {
+//      return shootInternal(() -> dumperAngleDeg, () -> shooterRPM);
+//    }
+
+//    /** Disparo automatico: angulo y RPM salen de las tablas de Constants segun la distancia al hub. */
+//    public Command shootAtDistance(DoubleSupplier distanceMeters) {
+//      return shootInternal(
+//          () -> Constants.DUMPER_ANGLE_MAP.get(distanceMeters.getAsDouble()),
+//          () -> Constants.SHOOTER_RPM_MAP.get(distanceMeters.getAsDouble()));
+//    }
+
+//    private Command shootInternal(DoubleSupplier angleDeg, DoubleSupplier rpm) {
+//      flywheels shooter = getFlywheelsShooter();
+//      Dumper dumper = getDumper();
+//      Indexer index = getIndexer();
+
+//      DoubleSupplier clampedAngle =
+//          () ->
+//              MathUtil.clamp(
+//                  angleDeg.getAsDouble(),
+//                  Dumperconstants.kLowerLimitDeg,
+//                  Dumperconstants.kUpperLimitDeg);
+
+//      // "Listo" se calcula contra el objetivo deseado, no contra inputs.TargetAngle/targetRPM:
+//      // esos valen 0 antes del primer ciclo y darian un falso "en objetivo" que alimenta de golpe.
+//      BooleanSupplier ready =
+//          () ->
+//              Math.abs(shooter.getState().velocityRPM - rpm.getAsDouble())
+//                      <= Constants.FLYWHEEL_TOLERANCE
+//                  && Math.abs(dumper.getState().position - clampedAngle.getAsDouble())
+//                      <= Dumperconstants.kToleranceDeg;
+//      Trigger readyStable = new Trigger(ready).debounce(0.15);
+
+//      // Shooter y dumper se mantienen activos mientras el comando viva (whileTrue);
+//      // el indexer solo alimenta cuando ambos estan en objetivo de forma estable.
+//      return Commands.parallel(
+//          shooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(rpm.getAsDouble())),
+//          dumper.setControl(
+//              () ->
+//                  DumperRequestFactory.setAngle()
+//                      .withAngle(clampedAngle.getAsDouble())
+//                      .withMode(DumperMODE.kFRONT)
+//                      .Tolerance(Dumperconstants.kToleranceDeg)),
+//          Commands.sequence(
+//              Commands.waitUntil(readyStable),
+//              index.setControl(
+//                  () ->
+//                      IndexerRequestFactory.processingSpeed()
+//                          .withRollers(-kFeedSpeed)
+//                          .withIndex(-kFeedSpeed))));
+//    }
+
+    // ---------------------------------- SHOOT ----------------------------------
+    // Flywheels con FF + PID (VelocityVoltage del Kraken). Cuando llegan al RPM, los rollers
+    // arrancan a IndexerConstants.kRollerFeedRPM. Usar con whileTrue: al soltar todo se apaga solo.
+
+    /** Disparo a un RPM fijo (trigger izquierdo: shooterWheelsConstants.kShootRPM). */
+    public Command shoot(double rpm) {
+      return shootInternal(() -> rpm);
     }
 
-    // Sin PID: mueve el shooter en duty cycle (-1.0 a 1.0)
-    public Command spinShooter(double speed){
-      flywheels flywheelShooter = getFlywheelsShooter();
-
-      return flywheelShooter.setControl(() -> FlywheelsRequestFactory.moveSpeed().whiSpeed(speed));
-    }
-
-    // Process sin PID, en duty cycle. Negativo = feedear (positivo expulsaba)
-    public Command ProcessSpeed(double speed){
-      Indexer index = getIndexer();
-
-      return index.setControl(
-          () -> IndexerRequestFactory.processingSpeed().withRollers(-speed).withIndex(-speed));
-    }
-
-
-    // ---------------------------------- DISPARO ----------------------------------
-    private static final double kFeedSpeed = 1.0; // duty; ProcessSpeed ya invierte el signo para alimentar
-
-    /** Disparo con angulo y RPM fijos. Util para medir puntos de la tabla de tiro. */
-    public Command shoot(double dumperAngleDeg, double shooterRPM) {
-      return shootInternal(() -> dumperAngleDeg, () -> shooterRPM);
-    }
-
-    /** Disparo automatico: angulo y RPM salen de las tablas de Constants segun la distancia al hub. */
+    /** Disparo con el RPM de la tabla segun la distancia al hub (pose fusionada con la Limelight). */
     public Command shootAtDistance(DoubleSupplier distanceMeters) {
-      return shootInternal(
-          () -> Constants.DUMPER_ANGLE_MAP.get(distanceMeters.getAsDouble()),
-          () -> Constants.SHOOTER_RPM_MAP.get(distanceMeters.getAsDouble()));
+      return shootInternal(() -> Constants.SHOOTER_RPM_MAP.get(distanceMeters.getAsDouble()));
     }
 
-    private Command shootInternal(DoubleSupplier angleDeg, DoubleSupplier rpm) {
+    private Command shootInternal(DoubleSupplier rpm) {
       flywheels shooter = getFlywheelsShooter();
-      Dumper dumper = getDumper();
       Indexer index = getIndexer();
 
-      DoubleSupplier clampedAngle =
-          () ->
-              MathUtil.clamp(
-                  angleDeg.getAsDouble(),
-                  Dumperconstants.kLowerLimitDeg,
-                  Dumperconstants.kUpperLimitDeg);
-
-      // "Listo" se calcula contra el objetivo deseado, no contra inputs.TargetAngle/targetRPM:
-      // esos valen 0 antes del primer ciclo y darian un falso "en objetivo" que alimenta de golpe.
-      BooleanSupplier ready =
+      // "Listo" se calcula contra el RPM deseado (no contra inputs.targetRPM, que vale 0 antes del
+      // primer ciclo y daria un falso "en objetivo").
+      BooleanSupplier atSpeed =
           () ->
               Math.abs(shooter.getState().velocityRPM - rpm.getAsDouble())
-                      <= Constants.FLYWHEEL_TOLERANCE
-                  && Math.abs(dumper.getState().position - clampedAngle.getAsDouble())
-                      <= Dumperconstants.kToleranceDeg;
-      Trigger readyStable = new Trigger(ready).debounce(0.15);
+                  <= shooterWheelsConstants.kRPMTolerance;
+      Trigger readyStable = new Trigger(atSpeed).debounce(shooterWheelsConstants.kReadyDebounceSec);
 
-      // Shooter y dumper se mantienen activos mientras el comando viva (whileTrue);
-      // el indexer solo alimenta cuando ambos estan en objetivo de forma estable.
       return Commands.parallel(
           shooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(rpm.getAsDouble())),
-          dumper.setControl(
-              () ->
-                  DumperRequestFactory.setAngle()
-                      .withAngle(clampedAngle.getAsDouble())
-                      .withMode(DumperMODE.kFRONT)
-                      .Tolerance(Dumperconstants.kToleranceDeg)),
           Commands.sequence(
               Commands.waitUntil(readyStable),
               index.setControl(
-                  () ->
-                      IndexerRequestFactory.processingSpeed()
-                          .withRollers(-kFeedSpeed)
-                          .withIndex(-kFeedSpeed))));
+                  () -> IndexerRequestFactory.setRollers().withRPM(IndexerConstants.kRollerFeedRPM))));
+    }
+
+    // ---------------------------------- PRUEBAS (temporales) ----------------------------------
+    /** PRUEBA de alcance: flywheels al 100% de duty cycle, sin PID. Usar con whileTrue. */
+    public Command spinShooterMax() {
+      flywheels shooter = getFlywheelsShooter();
+
+      return shooter.setControl(
+          () -> FlywheelsRequestFactory.moveSpeed().whiSpeed(shooterWheelsConstants.kMaxDuty));
+    }
+
+    /** PRUEBA: rollers e index a 3000 RPM con FF + PID del SparkMax. Usar con whileTrue. */
+    public Command indexerTestRPM() {
+      Indexer index = getIndexer();
+
+      return index.setControl(
+          () ->
+              IndexerRequestFactory.processingRPM()
+                  .withRollers(IndexerConstants.kRollerFeedRPM)
+                  .withIndex(IndexerConstants.kIndexFeedRPM));
     }
 
     // ---------------------------------- INTAKE ----------------------------------

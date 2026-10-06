@@ -18,7 +18,18 @@ public class flywheelsConstants {
 
         public static final double kRPMTolerance = 50;
 
-        public static final double kS = 0;
+        // ---------------- SHOOT ----------------
+        /** RPM fijo del disparo manual (trigger izquierdo). */
+        public static final double kShootRPM = 5000;
+        /** Tiempo (s) que las RPM deben estar dentro de tolerancia antes de arrancar los rollers. */
+        public static final double kReadyDebounceSec = 0.15;
+        /** PRUEBA de alcance: duty cycle maximo de las flywheels (1.0 = 100%, sin PID). */
+        public static final double kMaxDuty = 1.0;
+
+        // FF + PID del Talon (Slot0, VelocityVoltage). Unidades de Phoenix: volts y RPS del rotor.
+        // kS = 0.4 y kP ~ 0.5 salen de las flywheels 2024 (mismo Kraken 1:1: kS 0.4, kV 0.12, kP 0.6).
+        // kV = 0.1277 V/RPS es el medido de tu robot. FF a 5000 RPM = 0.4 + (5000/60)*0.1277 = 11.0 V.
+        public static final double kS = 0.4;
         public static final double kV = 0.12765427;
         public static final double kP = 0.5;
         public static final double kI = 0;

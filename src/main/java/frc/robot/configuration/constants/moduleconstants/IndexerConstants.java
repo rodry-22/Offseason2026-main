@@ -16,6 +16,29 @@ public class IndexerConstants {
     public static final boolean kIndexInverted = false;
     public static final boolean kIndexEncoderInverted = false;
 
+    // ---------------- ROLLERS EN RPM (disparo) ----------------
+    /** RPM del motor de los rollers al disparar. Negativo = alimenta (igual que ProcessSpeed(-x)). */
+    public static final double kRollerFeedRPM = -3000;
+
+    // PID del SparkMax (slot 0). kP en salida por RPM de error; empieza bajo y sube si tarda en llegar.
+    public static final double kRollerP = 0.0002;
+    public static final double kRollerI = 0;
+    public static final double kRollerD = 0;
+    // Feedforward en VOLTS (se manda como arbFeedforward): kV = 12 V / 5676 RPM (NEO libre) = 0.0021.
+    // A 3000 RPM: 0.1 + 3000*0.0021 = 6.4 V.
+    public static final double kRollerS = 0.1;
+    public static final double kRollerV = 0.0021;
+
+    // ---------------- INDEX EN RPM (prueba del indexer) ----------------
+    /** RPM del motor del index en la prueba. Negativo = alimenta (igual que ProcessSpeed(-x)). */
+    public static final double kIndexFeedRPM = -3000;
+    public static final double kIndexP = 0.0002;
+    public static final double kIndexI = 0;
+    public static final double kIndexD = 0;
+    // FF en volts, mismo NEO: kV = 12 / 5676 = 0.0021 (3000 RPM ~ 6.4 V)
+    public static final double kIndexS = 0.1;
+    public static final double kIndexV = 0.0021;
+
     public static final int SmartCurrentLimit = 40;
     public static final double VoltageCompesation = 12;
     

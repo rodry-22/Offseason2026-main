@@ -2,6 +2,7 @@ package frc.robot.modules.superstructure.modules.IndexerModule;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -35,6 +36,11 @@ public class IndexerIOSpark implements IndexerIO {
             .idleMode(IdleMode.kCoast)
             .inverted(true)
             .encoder.positionConversionFactor(1/IndexerConstants.indexRatio);
+        // PID de velocidad de los rollers (el FF va en setRollers como arbFeedforward en volts)
+        rollConfig.closedLoop.pid(
+            IndexerConstants.kRollerP, IndexerConstants.kRollerI, IndexerConstants.kRollerD, ClosedLoopSlot.kSlot0);
+        indexConfig.closedLoop.pid(
+            IndexerConstants.kIndexP, IndexerConstants.kIndexI, IndexerConstants.kIndexD, ClosedLoopSlot.kSlot0);
         indexConfig
             .idleMode(IdleMode.kCoast)
             .encoder.positionConversionFactor(1/IndexerConstants.indexRatio); 
@@ -65,12 +71,14 @@ public class IndexerIOSpark implements IndexerIO {
     
     @Override
     public void setRollers(double RPM) {
-        rollController.setSetpoint(RPM, ControlType.kVelocity);
+        double ffVolts = IndexerConstants.kRollerS * Math.signum(RPM) + IndexerConstants.kRollerV * RPM;
+        rollController.setSetpoint(RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, ffVolts);
     }
         
     @Override
     public void setIndex(double RPM) {
-        indexController.setSetpoint(RPM, ControlType.kVelocity);
+        double ffVolts = IndexerConstants.kIndexS * Math.signum(RPM) + IndexerConstants.kIndexV * RPM;
+        indexController.setSetpoint(RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, ffVolts);
     }
     
 
@@ -102,4 +110,3 @@ public class IndexerIOSpark implements IndexerIO {
     
 
 }
-
