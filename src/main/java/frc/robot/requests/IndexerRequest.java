@@ -151,4 +151,23 @@ public interface IndexerRequest extends Request<IndexerInputs, IndexerIO> {
                 return ActionStatus.of(PROCESSING, "Rollers and Index at RPM");
             }
         }
+        @CreateCommand(name = "processingAmps")
+        public static class ProcessingAmps implements IndexerRequest{
+            public double m_rollerAmps = 0;
+            public double m_indexAmps = 0;
+            public ProcessingAmps withRollers(double amps){
+                m_rollerAmps = amps;
+                return this;
+            }
+            public ProcessingAmps withIndex(double amps){
+                m_indexAmps = amps;
+                return this;
+            }
+            @Override
+            public ActionStatus apply(IndexerInputs inputs, IndexerIO actor) {
+                actor.setRollersCurrent(m_rollerAmps);
+                actor.setIndexCurrent(m_indexAmps);
+                return ActionStatus.of(PROCESSING, "Rollers and Index at current");
+            }
+        }
 }

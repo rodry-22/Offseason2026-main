@@ -21,6 +21,9 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
         @Unit(value = "RPM", group = "Indexer")
         public double indexRPM = 0;
 
+        // Corriente (A) de cada motor, para verificar la prueba por amperaje
+        public double rollerAmps = 0;
+        public double indexAmps = 0;
 
         @Override
         public IndexerInputs snapshot() {
@@ -29,6 +32,8 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
             clone.rollerRPM = this.rollerRPM;
             clone.indexVolts = this.indexVolts;
             clone.indexRPM = this.indexRPM;
+            clone.rollerAmps = this.rollerAmps;
+            clone.indexAmps = this.indexAmps;
             return clone;
         }
     }
@@ -70,6 +75,15 @@ public interface IndexerIO extends IO<IndexerIO.IndexerInputs> {
     public default void setIndexSpeed(double speed) {
         applyIndex(speed * 12.0);
     }
+
+    /**
+     * Control por corriente (amperes) de los rollers. Por defecto no hace nada (sim);
+     * IndexerIOSpark lo implementa con ControlType.kCurrent.
+     */
+    public default void setRollersCurrent(double amps) {}
+
+    /** Control por corriente (amperes) del index. Por defecto no hace nada (sim). */
+    public default void setIndexCurrent(double amps) {}
 
     public void stopRollers();
     /**

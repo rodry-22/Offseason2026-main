@@ -5,8 +5,6 @@ import com.stzteam.features.unitprocessor.Unit;
 import com.stzteam.mars.models.singlemodule.Data;
 import com.stzteam.mars.models.singlemodule.IO;
 
-import frc.robot.modules.superstructure.modules.DumperModule.Dumper;
-
 @Fallback
 public interface IntakeIO extends IO<IntakeIO.IntakeInputs> {
 

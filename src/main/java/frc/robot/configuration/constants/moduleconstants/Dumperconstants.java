@@ -11,7 +11,8 @@ public class Dumperconstants {
     public static final boolean kTuningMode = true;
 
     // ---------------------------------- MECANICA ----------------------------------
-    /** CONFIRMAR: vueltas del motor por 1 vuelta de la capucha (reduccion total). */
+    /** CONFIRMAR: vueltas del mo
+     * tor por 1 vuelta de la capucha (reduccion total). */
     public static final double kGearRatio = 4;
     /** Grados de capucha por cada vuelta del NEO. Con esto el encoder del Spark ya lee GRADOS. */
     public static final double kDegreesPerMotorRotation = 360.0 / kGearRatio;

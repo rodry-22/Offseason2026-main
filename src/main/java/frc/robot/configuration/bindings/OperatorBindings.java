@@ -69,14 +69,19 @@ public class OperatorBindings implements Binding {
       triggers.left().whileTrue(superstructure.shoot(shooterWheelsConstants.kShootRPM));
 
       // ---- PRUEBAS de alcance (temporales) ----
-      // A: flywheels al maximo (duty 100%). OJO: con Dumperconstants.kTuningMode = true, A (bottom)
-      // tambien manda el dumper a 5 deg (esta mas abajo, en el bloque de calibracion).
-      buttons.bottom().whileTrue(superstructure.spinShooterMax());
+      // B: flywheels al maximo (duty 100%). (Antes estaba en A; A ahora es del intake.)
+      buttons.right().whileTrue(superstructure.spinShooterMax());
       // Bumper derecho: rollers + index a 3000 RPM.
       bumpers.right().whileTrue(superstructure.indexerTestRPM());
+      // Bumper izquierdo: rollers + index por CORRIENTE (40 A).
+      bumpers.left().whileTrue(superstructure.indexerTestAmps());
 
-      // Intake: el trigger izquierdo ahora es del disparo. PENDIENTE reasignar a otro boton.
-      // triggers.left().whileTrue(superstructure.intakeBalls()).onFalse(superstructure.retractIntake());
+      // ---- INTAKE (operator): brazo con FF + PID del angulador ----
+      // A (bottom) = bajar el brazo, Y (top) = subirlo. Al terminar, el default lo mantiene en su lugar.
+      buttons.bottom().onTrue(superstructure.deployIntake());
+      buttons.top().onTrue(superstructure.retractIntake());
+      // X (left) = ruedas del intake mientras se mantiene.
+      buttons.left().whileTrue(superstructure.intakewheels());
 
       // ---------------- CALIBRACION DEL INTAKE (temporal, solo con kAngulatorTuningMode) ----------------
       if (IntakeConstants.kAngulatorTuningMode) {
@@ -95,17 +100,13 @@ public class OperatorBindings implements Binding {
             dumper.setControl(
                 () -> DumperRequestFactory.moveVoltage().withvolVolts(leftStick.y().getAsDouble() * 3.0)));
         // Escalon de posicion para ver la respuesta del PID en AdvantageScope.
-        buttons.top().onTrue(dumper.setAngle(30.0, DumperMODE.kFRONT, Dumperconstants.kToleranceDeg));
-        buttons.bottom().onTrue(dumper.setAngle(5.0, DumperMODE.kFRONT, Dumperconstants.kToleranceDeg));
+        // (Comentados: Y y A ahora son del intake. PENDIENTE reasignar estos escalones a otros botones.)
+        // buttons.top().onTrue(dumper.setAngle(30.0, DumperMODE.kFRONT, Dumperconstants.kToleranceDeg));
+        // buttons.bottom().onTrue(dumper.setAngle(5.0, DumperMODE.kFRONT, Dumperconstants.kToleranceDeg));
       }
 
       // triggers.left().whileTrue(superstructure.intake());
       // buttons.bottom().onTrue(superstructure.stopAll());
    }
-
-
-          
-
-
 
 }

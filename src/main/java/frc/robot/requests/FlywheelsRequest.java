@@ -1,7 +1,5 @@
 package frc.robot.requests;
 
-import com.stzteam.features.dictionary.Dictionary.CommonTables.Terminology;
-
 import com.stzteam.features.dictionary.Dictionary.StatusCodes;
 import com.stzteam.features.marsprocessor.CreateCommand;
 import com.stzteam.features.marsprocessor.RequestFactory;

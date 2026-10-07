@@ -4,7 +4,7 @@ public class IntakeConstants {
         
     public static int intakeRatio = 1;
     public static int rollsSparkID = 0;
-    public static int angulatorSparkID = 0;
+    public static int angulatorSparkID = 13;
 
     public static final double kGearRatio = 9;
 

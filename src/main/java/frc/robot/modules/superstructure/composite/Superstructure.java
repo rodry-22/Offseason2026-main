@@ -195,7 +195,7 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
 
     private Command shootInternal(DoubleSupplier rpm) {
       flywheels shooter = getFlywheelsShooter();
-      Indexer index = getIndexer();
+      //Indexer index = getIndexer();
 
       // "Listo" se calcula contra el RPM deseado (no contra inputs.targetRPM, que vale 0 antes del
       // primer ciclo y daria un falso "en objetivo").
@@ -208,9 +208,10 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
       return Commands.parallel(
           shooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(rpm.getAsDouble())),
           Commands.sequence(
-              Commands.waitUntil(readyStable),
-              index.setControl(
-                  () -> IndexerRequestFactory.setRollers().withRPM(IndexerConstants.kRollerFeedRPM))));
+              Commands.waitUntil(readyStable)
+             //index.setControl(
+                //  () -> IndexerRequestFactory.setRollers().withRPM(IndexerConstants.kRollerFeedRPM))
+                ));
     }
 
     // ---------------------------------- PRUEBAS (temporales) ----------------------------------
@@ -231,6 +232,17 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
               IndexerRequestFactory.processingRPM()
                   .withRollers(IndexerConstants.kRollerFeedRPM)
                   .withIndex(IndexerConstants.kIndexFeedRPM));
+    }
+
+    /** PRUEBA: rollers e index por CORRIENTE (kRollerFeedAmps / kIndexFeedAmps, 40 A). whileTrue. */
+    public Command indexerTestAmps() {
+      Indexer index = getIndexer();
+
+      return index.setControl(
+          () ->
+              IndexerRequestFactory.processingAmps()
+                  .withRollers(IndexerConstants.kRollerFeedAmps)
+                  .withIndex(IndexerConstants.kIndexFeedAmps));
     }
 
     // ---------------------------------- INTAKE ----------------------------------
@@ -256,6 +268,19 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
               Commands.waitUntil(deployed),
               intakeWheels.setControl(
                   () -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts))));
+    }
+
+    /** Baja el brazo a la posicion de recoleccion y termina (despues el default lo mantiene ahi). */
+    public Command deployIntake() {
+      Intake intake = getIntake();
+
+      return intake
+          .setAngulatorPosition(IntakeConstants.kDeployAngleDeg, IntakeMODE.kFRONT)
+          .until(
+              () ->
+                  Math.abs(intake.getState().angulatorPosition - IntakeConstants.kDeployAngleDeg)
+                      <= IntakeConstants.toleranceDegrees)
+          .withTimeout(2.0);
     }
 
     /** Sube el brazo a la posicion guardada y termina (despues el default lo mantiene ahi). */

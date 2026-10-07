@@ -3,7 +3,7 @@ package frc.robot.configuration.constants.moduleconstants;
 //This is a constant file. Only change the values of the constants if you know what you are doing.
 public class IndexerConstants {
 
-    public static final int rollerID = 16;
+    public static final int rollerID = 12;
     public static final int indexID = 15;
     public static double rollerRatio= 3;
     public static double indexRatio = 3;
@@ -31,7 +31,7 @@ public class IndexerConstants {
 
     // ---------------- INDEX EN RPM (prueba del indexer) ----------------
     /** RPM del motor del index en la prueba. Negativo = alimenta (igual que ProcessSpeed(-x)). */
-    public static final double kIndexFeedRPM = -3000;
+    public static final double kIndexFeedRPM = -4000;
     public static final double kIndexP = 0.0002;
     public static final double kIndexI = 0;
     public static final double kIndexD = 0;
@@ -39,7 +39,17 @@ public class IndexerConstants {
     public static final double kIndexS = 0.1;
     public static final double kIndexV = 0.0021;
 
-    public static final int SmartCurrentLimit = 40;
+    // ---------------- ROLLERS + INDEX POR CORRIENTE (prueba) ----------------
+    /** Amperes de la prueba. Negativo = alimenta (mismo sentido que ProcessSpeed(-x)). Empezar en 40 A. */
+    public static final double kRollerFeedAmps = -40;
+    public static final double kIndexFeedAmps = -40;
+    // Ganancias del lazo de corriente del SparkMax (slot 1, ControlType.kCurrent). Valores de PARTIDA:
+    // el lazo de corriente casi no esta documentado por REV, hay que afinarlo en el robot.
+    public static final double kCurrentP = 0.05;
+    public static final double kCurrentI = 0.0;
+    public static final double kCurrentD = 0.0;
+
+    public static final int SmartCurrentLimit = 80;
     public static final double VoltageCompesation = 12;
     
 }

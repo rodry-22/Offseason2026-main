@@ -39,8 +39,13 @@ public class IndexerIOSpark implements IndexerIO {
         // PID de velocidad de los rollers (el FF va en setRollers como arbFeedforward en volts)
         rollConfig.closedLoop.pid(
             IndexerConstants.kRollerP, IndexerConstants.kRollerI, IndexerConstants.kRollerD, ClosedLoopSlot.kSlot0);
+        // Lazo de corriente (slot 1) para ControlType.kCurrent
+        rollConfig.closedLoop.pid(
+            IndexerConstants.kCurrentP, IndexerConstants.kCurrentI, IndexerConstants.kCurrentD, ClosedLoopSlot.kSlot1);
         indexConfig.closedLoop.pid(
             IndexerConstants.kIndexP, IndexerConstants.kIndexI, IndexerConstants.kIndexD, ClosedLoopSlot.kSlot0);
+        indexConfig.closedLoop.pid(
+            IndexerConstants.kCurrentP, IndexerConstants.kCurrentI, IndexerConstants.kCurrentD, ClosedLoopSlot.kSlot1);
         indexConfig
             .idleMode(IdleMode.kCoast)
             .encoder.positionConversionFactor(1/IndexerConstants.indexRatio); 
@@ -57,6 +62,9 @@ public class IndexerIOSpark implements IndexerIO {
         
         inputs.indexVolts = indexMotor.getAppliedOutput() * indexMotor.getBusVoltage();
         inputs.indexRPM = indexMotor.getEncoder().getVelocity();
+
+        inputs.rollerAmps = rollMotor.getOutputCurrent();
+        inputs.indexAmps = indexMotor.getOutputCurrent();
 	}
 
     @Override
@@ -81,6 +89,16 @@ public class IndexerIOSpark implements IndexerIO {
         indexController.setSetpoint(RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, ffVolts);
     }
     
+
+    @Override
+    public void setRollersCurrent(double amps) {
+        rollController.setSetpoint(amps, ControlType.kCurrent, ClosedLoopSlot.kSlot1);
+    }
+
+    @Override
+    public void setIndexCurrent(double amps) {
+        indexController.setSetpoint(amps, ControlType.kCurrent, ClosedLoopSlot.kSlot1);
+    }
 
     @Override
     public void setRollersSpeed(double speed) {

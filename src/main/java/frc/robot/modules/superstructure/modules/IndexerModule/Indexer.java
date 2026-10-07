@@ -38,6 +38,9 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
     private static final String VOLTAGE_INDEX_KEY = CommonTables.VOLTAGE_KEY + KeyManager.INDEXER_KEY;
     private static final String VOLTAGE_ROLL_KEY = CommonTables.VOLTAGE_KEY + KeyManager.INDEXER_KEY;
 
+    private static final String AMPS_INDEX_KEY = "IndexAmps";
+    private static final String AMPS_ROLL_KEY = "RollerAmps";
+
 
         @Override
         public void telemeterize(IndexerInputs data) {
@@ -47,6 +50,9 @@ public static class IndexerTelemetry extends Telemetry<IndexerInputs>{
 
             NetworkIO.set(KeyManager.INDEXER_KEY, VOLTAGE_INDEX_KEY, data.indexVolts);
             NetworkIO.set(KeyManager.INDEXER_KEY, VOLTAGE_ROLL_KEY, data.rollerVolts);
+
+            NetworkIO.set(KeyManager.INDEXER_KEY, AMPS_INDEX_KEY, data.indexAmps);
+            NetworkIO.set(KeyManager.INDEXER_KEY, AMPS_ROLL_KEY, data.rollerAmps);
         }
     }
 
