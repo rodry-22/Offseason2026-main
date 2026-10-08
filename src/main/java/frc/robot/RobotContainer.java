@@ -83,7 +83,7 @@ public class RobotContainer implements IRobotContainer{
       this.flywheelsShooter
     );
 
-    OperatorBindings.create(operator, superstructure, drivetrain::getDistanceToHub).bind();
+    OperatorBindings.create(operator, superstructure, null).bind();
 
   }
 

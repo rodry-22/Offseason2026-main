@@ -20,6 +20,15 @@ public interface flywheelsIO extends IO<flywheelsIO.FlyWheelsInputs> {
     public double velocityRPM = 0;
 
     public double current = 0;
+
+    // Diagnostico del shooter: RPM del motor (antes de la relacion de engranes) y estado del follower
+    @Unit(value = "RPM", group = "FlyWheel")
+    public double motorRPM = 0;
+
+    @Unit(value = "RPM", group = "FlyWheel")
+    public double followerRPM = 0;
+
+    public double followerCurrent = 0;
   }
 
   public enum idleMode {

@@ -99,6 +99,10 @@ public class flywheels extends ModularSubsystem<FlyWheelsInputs, flywheelsIO> im
         NetworkIO.set(key, TARGET_RPM_KEY, data.targetRPM);
 
         NetworkIO.set(key, "Current", data.current);
+
+        NetworkIO.set(key, "MotorRPM", data.motorRPM);
+        NetworkIO.set(key, "FollowerRPM", data.followerRPM);
+        NetworkIO.set(key, "FollowerCurrent", data.followerCurrent);
     }
 
   }

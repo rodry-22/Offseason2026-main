@@ -49,9 +49,9 @@ public final class ChassisTuningDashboard {
         "SysId/5 Stop Logger",
         Commands.runOnce(SignalLogger::stop).ignoringDisable(true).withName("Stop SignalLogger"));
 
-    PathFollowingTuner tuner = new PathFollowingTuner(drivetrain);
-    SmartDashboard.putData("PathTuning/Run Manual Trial", tuner.manualTrialCommand());
-    SmartDashboard.putData("PathTuning/Run AutoTune", tuner.autoTuneCommand());
+    // PathFollowingTuner tuner = new PathFollowingTuner(drivetrain);
+    // SmartDashboard.putData("PathTuning/Run Manual Trial", tuner.manualTrialCommand());
+    // SmartDashboard.putData("PathTuning/Run AutoTune", tuner.autoTuneCommand());
   }
 
   private static Command sysId(

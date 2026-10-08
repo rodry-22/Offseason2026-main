@@ -58,9 +58,6 @@ public class SwerveTelemetry {
         tableName,
         CommonTables.ODOMETRY_KEY + CommonTables.FREQUENCY_KEY,
         1.0 / state.OdometryPeriod);
-    NetworkIO.set("MarsTest", "PosY", state.Pose.getY());
-    NetworkIO.set("MarsTest", "set", 2);
-
 
     /* Also write to log file */
     SignalLogger.writeStruct("DriveState/Pose", Pose2d.struct, state.Pose);

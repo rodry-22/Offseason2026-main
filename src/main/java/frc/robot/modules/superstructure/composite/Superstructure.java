@@ -29,7 +29,7 @@ import frc.robot.requests.IndexerRequestFactory;
 
 public class Superstructure extends CompositeSubsystem<SuperstructureData, SuperstructureIO>{
 
-    private static final double intakeVolts = -5;
+    private static final double intakeVolts = -8;
     private static final double feedVolts = 12;
 
 
@@ -88,6 +88,13 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
 
       return Commands.parallel(
           intakeWheels.setControl(() -> FlywheelsRequestFactory.moveVoltage().whithVolts(intakeVolts)));
+  }
+
+  public Command intakewheelsOut() {
+      flywheels intakeWheels = getFlywheelsIntake();
+
+      return Commands.parallel(
+          intakeWheels.setControl(() -> FlywheelsRequestFactory.moveVoltage().whithVolts(-intakeVolts)));
   }
 
 //   public Command spinShooterRPM(double rpm){
@@ -195,23 +202,36 @@ public class Superstructure extends CompositeSubsystem<SuperstructureData, Super
 
     private Command shootInternal(DoubleSupplier rpm) {
       flywheels shooter = getFlywheelsShooter();
-      //Indexer index = getIndexer();
+      Indexer index = getIndexer();
 
-      // "Listo" se calcula contra el RPM deseado (no contra inputs.targetRPM, que vale 0 antes del
-      // primer ciclo y daria un falso "en objetivo").
+      // Nunca pedir mas RPM de los que se alcanzan (kMaxWheelRPM) ni NaN (la distancia al hub
+      // puede salir NaN si la pose no es valida).
+      DoubleSupplier target =
+          () -> {
+            double r = rpm.getAsDouble();
+            return Double.isNaN(r) ? 0.0 : MathUtil.clamp(r, 0.0, shooterWheelsConstants.kMaxWheelRPM);
+          };
+
+      // "Listo" = la rueda ya llego al RPM (solo se exige llegar por abajo; pasarse no importa).
+      // Se compara contra el RPM deseado, no contra inputs.targetRPM (vale 0 antes del primer ciclo).
       BooleanSupplier atSpeed =
           () ->
-              Math.abs(shooter.getState().velocityRPM - rpm.getAsDouble())
-                  <= shooterWheelsConstants.kRPMTolerance;
+              shooter.getState().velocityRPM
+                  >= target.getAsDouble() - shooterWheelsConstants.kRPMTolerance;
       Trigger readyStable = new Trigger(atSpeed).debounce(shooterWheelsConstants.kReadyDebounceSec);
 
       return Commands.parallel(
-          shooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(rpm.getAsDouble())),
+          shooter.setControl(() -> FlywheelsRequestFactory.setRPM().toRPM(target.getAsDouble())),
           Commands.sequence(
-              Commands.waitUntil(readyStable)
-             //index.setControl(
-                //  () -> IndexerRequestFactory.setRollers().withRPM(IndexerConstants.kRollerFeedRPM))
-                ));
+              // Espera a que la rueda llegue, pero nunca mas de kSpinUpTimeoutSec: si el RPM no se
+              // alcanza (bateria baja, carga), igual alimenta en vez de quedarse esperando.
+              Commands.waitUntil(readyStable).withTimeout(shooterWheelsConstants.kSpinUpTimeoutSec),
+              // Rollers + index a su RPM de disparo (request processingRPM de IndexerRequest).
+              index.setControl(
+                  () ->
+                      IndexerRequestFactory.processingRPM()
+                          .withRollers(IndexerConstants.kRollerFeedRPM)
+                          .withIndex(IndexerConstants.kIndexFeedRPM))));
     }
 
     // ---------------------------------- PRUEBAS (temporales) ----------------------------------

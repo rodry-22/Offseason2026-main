@@ -9,7 +9,6 @@ import frc.robot.configuration.constants.moduleconstants.Dumperconstants;
 import frc.robot.configuration.constants.moduleconstants.IntakeConstants;
 import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants;
 import frc.robot.modules.superstructure.composite.Superstructure;
-import frc.robot.modules.superstructure.modules.DumperModule.DumperIO.DumperMODE;
 import frc.robot.requests.DumperRequestFactory;
 import frc.robot.requests.IntakeRequestFactory;
 import com.stzteam.mars.models.containers.Binding;
@@ -70,7 +69,7 @@ public class OperatorBindings implements Binding {
 
       // ---- PRUEBAS de alcance (temporales) ----
       // B: flywheels al maximo (duty 100%). (Antes estaba en A; A ahora es del intake.)
-      buttons.right().whileTrue(superstructure.spinShooterMax());
+
       // Bumper derecho: rollers + index a 3000 RPM.
       bumpers.right().whileTrue(superstructure.indexerTestRPM());
       // Bumper izquierdo: rollers + index por CORRIENTE (40 A).
@@ -82,6 +81,8 @@ public class OperatorBindings implements Binding {
       buttons.top().onTrue(superstructure.retractIntake());
       // X (left) = ruedas del intake mientras se mantiene.
       buttons.left().whileTrue(superstructure.intakewheels());
+
+      buttons.right().whileTrue(superstructure.intakewheelsOut());
 
       // ---------------- CALIBRACION DEL INTAKE (temporal, solo con kAngulatorTuningMode) ----------------
       if (IntakeConstants.kAngulatorTuningMode) {

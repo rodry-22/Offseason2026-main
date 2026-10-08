@@ -1,80 +1,100 @@
 package frc.robot.modules.superstructure.modules.FlywheelsModule;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-import frc.robot.configuration.constants.TunerConstants;
-import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants.IntakeWheelsConstants;
+import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants;
 
 public class FlyWheelIOKrakenIntake implements flywheelsIO {
 
-    private final TalonFX intakeFlyWheels;
-  private TalonFXConfigurator FlyWheelsConfigurator;
+    private TalonFX leaderShooter, followerShooter;
+    private TalonFXConfiguration leaderConfig, followerConfig;
+    private TalonFXConfigurator leaderConfigurator, followerConfigurator;
 
-  public FlyWheelIOKrakenIntake() {
-    intakeFlyWheels = new TalonFX(IntakeWheelsConstants.IntakeWheels_ID, TunerConstants.kCANBus);
-    FlyWheelsConfigurator = intakeFlyWheels.getConfigurator();
+    private VelocityVoltage velocityRequest;
+    private double velocityTarget;
 
-    configMotor();
-    // optimizeCANBus();
-  }
+    public FlyWheelIOKrakenIntake(){
+        leaderShooter = new TalonFX(shooterWheelsConstants.shooterLeaderID, CANBus.roboRIO());
+        followerShooter = new TalonFX(shooterWheelsConstants.shooterFollowerID, CANBus.roboRIO());
 
-  public void configMotor() {
-    var motorConfigs = new MotorOutputConfigs();
+        leaderConfig = new TalonFXConfiguration();
+        followerConfig = new TalonFXConfiguration();
 
-    motorConfigs.Inverted = IntakeWheelsConstants.invertedValue;
-    motorConfigs.NeutralMode = NeutralModeValue.Brake;
+        leaderConfigurator = leaderShooter.getConfigurator();
+        followerConfigurator = followerShooter.getConfigurator();
 
-    var limitConfigs = new CurrentLimitsConfigs();
+        velocityRequest = new VelocityVoltage(0);
 
-    limitConfigs.StatorCurrentLimit = IntakeWheelsConstants.StatorCurrentLimit;
-    limitConfigs.StatorCurrentLimitEnable = true;
+        followerShooter.setControl(new Follower(shooterWheelsConstants.shooterLeaderID, MotorAlignmentValue.Opposed));
 
-    limitConfigs.SupplyCurrentLimit = IntakeWheelsConstants.SupplyCurrentLimit;
-    limitConfigs.SupplyCurrentLimitEnable = true;
+        configMotor();
+    }
 
-    intakeFlyWheels.getConfigurator().apply(limitConfigs);
+    public void configMotor(){
+        var limitConfigs = leaderConfig.CurrentLimits;
 
-    FlyWheelsConfigurator.refresh(motorConfigs);
-    FlyWheelsConfigurator.apply(motorConfigs);
-  }
+    limitConfigs.SupplyCurrentLimit = shooterWheelsConstants.SupplyCurrentLimit;
+    limitConfigs.SupplyCurrentLimitEnable = shooterWheelsConstants.SupplyCurrentLimitEnable;
 
-  public void optimizeCANBus() {
+    limitConfigs.StatorCurrentLimit = shooterWheelsConstants.StatorCurrentLimit;
+    limitConfigs.StatorCurrentLimitEnable = shooterWheelsConstants.StatorCurrentLimitEnable;
 
-    // 50 hz = 20ms
-    intakeFlyWheels.getMotorVoltage().setUpdateFrequency(50);
-    intakeFlyWheels.getVelocity().setUpdateFrequency(50);
+    // Sentido de giro: con kShooterInverted el disparo queda en sentido positivo (ver constantes).
+    leaderConfig.MotorOutput.Inverted = shooterWheelsConstants.kShooterInverted;
+    followerConfig.MotorOutput.Inverted = shooterWheelsConstants.kShooterInverted;
 
-    intakeFlyWheels.getPosition().setUpdateFrequency(0);
-    intakeFlyWheels.getClosedLoopError().setUpdateFrequency(0);
-    intakeFlyWheels.getClosedLoopDerivativeOutput().setUpdateFrequency(0);
-    intakeFlyWheels.getClosedLoopProportionalOutput().setUpdateFrequency(0);
-    intakeFlyWheels.getClosedLoopIntegratedOutput().setUpdateFrequency(0);
+    var slot0Configs = leaderConfig.Slot0;
 
-    intakeFlyWheels.optimizeBusUtilization();
-  }
+    slot0Configs.kS = shooterWheelsConstants.kS;
+    slot0Configs.kV = shooterWheelsConstants.kV;
+    slot0Configs.kP = shooterWheelsConstants.kP;
+    slot0Configs.kI = shooterWheelsConstants.kI;
+    slot0Configs.kD = shooterWheelsConstants.kD;
 
-  @Override
-  public void applyOutput(double volts) {
-    intakeFlyWheels.setVoltage(volts);
-  }
+    leaderConfigurator.apply(leaderConfig);
+    followerConfigurator.apply(followerConfig);
 
-  @Override
-  public void setSpeed(double speed) {
-    intakeFlyWheels.set(speed);
-  }
+    leaderConfigurator.apply(limitConfigs);
+    followerConfigurator.apply(limitConfigs);
+    }
+    
+    @Override 
+    public void updateInputs(FlyWheelsInputs inputs){
+        double motorRPM = leaderShooter.getVelocity().getValueAsDouble() * 60.0; //Convertir RPS A RPM
+        inputs.motorRPM = motorRPM;
+        inputs.velocityRPM = motorRPM / shooterWheelsConstants.kGearRatio; // RPM de la RUEDA
 
-  @Override
-  public void setTargetRPM(double RPM) {}
+        // Follower: si su magnitud/corriente no se parece a la del lider, los motores se pelean.
+        inputs.followerRPM = followerShooter.getVelocity().getValueAsDouble() * 60.0;
+        inputs.followerCurrent = followerShooter.getStatorCurrent().getValueAsDouble();
 
-  @Override
-  public void updateInputs(FlyWheelsInputs inputs) {
-    inputs.appliedVolts = intakeFlyWheels.getMotorVoltage().getValueAsDouble();
-    inputs.velocityRPM = intakeFlyWheels.getVelocity().getValueAsDouble();
+        inputs.appliedVolts = leaderShooter.getMotorVoltage().getValueAsDouble();
+        inputs.targetRPM = this.velocityTarget;
 
-    inputs.current = intakeFlyWheels.getStatorCurrent().getValueAsDouble();
-  }
+        inputs.current = leaderShooter.getStatorCurrent().getValueAsDouble();
+    }
+
+    @Override 
+    public void setTargetRPM(double RPM){
+        this.velocityTarget = RPM;
+        // RPM es de la RUEDA; el motor debe girar kGearRatio veces mas rapido (las ganancias siguen en unidades del motor).
+        leaderShooter.setControl(
+            velocityRequest.withVelocity(RPM * shooterWheelsConstants.kGearRatio / 60.0).withSlot(0));   
+    }
+
+    @Override 
+    public void applyOutput(double volts){
+        leaderShooter.setVoltage(volts);
+    }
+
+    @Override
+    public void setSpeed(double speed){
+        leaderShooter.set(speed);
+    }
 }

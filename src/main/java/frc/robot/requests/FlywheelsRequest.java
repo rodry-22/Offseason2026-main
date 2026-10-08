@@ -85,7 +85,7 @@ public interface FlywheelsRequest extends Request<FlyWheelsInputs, flywheelsIO>{
     @CreateCommand(name = "toRPM")
     public static class SetRPM implements FlywheelsRequest{
         private double rpm;
-        private double tolerance = 1.0;
+        private double tolerance = flywheelsConstants.shooterWheelsConstants.kRPMTolerance;
 
         public SetRPM(double rpm){
             this.rpm = rpm;
@@ -154,4 +154,4 @@ public interface FlywheelsRequest extends Request<FlyWheelsInputs, flywheelsIO>{
   }
 */
 
-} 
+}

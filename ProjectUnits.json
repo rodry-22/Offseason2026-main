@@ -3,7 +3,9 @@
     "flywheelsIO.setTargetRPM(rpm)": "RPM",
     "FlyWheelsInputs.appliedVolts": "Volts",
     "flywheelsIO.setSpeed(speed)": "DutyCycle",
+    "FlyWheelsInputs.motorRPM": "RPM",
     "FlyWheelsInputs.velocityRPM": "RPM",
+    "FlyWheelsInputs.followerRPM": "RPM",
     "flywheelsIO.applyOutput(volts)": "Volts",
     "FlyWheelsInputs.targetRPM": "RPM"
   },

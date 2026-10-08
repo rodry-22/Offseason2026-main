@@ -8,19 +8,16 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.util.DriveFeedforwards;
-import com.pathplanner.lib.util.PathPlannerLogging;
 
 import com.stzteam.forgemini.io.NetworkIO;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -28,6 +25,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,15 +33,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.KeyManager;
-import frc.robot.configuration.constants.Constants;
 import frc.robot.configuration.constants.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.configuration.constants.moduleconstants.SwerveConstants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.SysIdRoutineManager;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements Subsystem so it can easily
@@ -53,23 +47,12 @@ import java.util.function.Supplier;
  * https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
-  implements Subsystem{
+    implements Subsystem{
   private static final double kSimLoopPeriod = 0.004; // 4 ms
   private Notifier m_simNotifier = null;
-  private MarsSimGlue m_marsGlue = null;
+  private double m_lastSimTime;
 
   private double GravityFactor = 9.80665;
-
-  // ---- Filtros de vision (puntos de partida; ajustar con los logs de VisionAccepted) ----
-  /** Limelight recomienda rechazar MegaTag2 por encima de ~720 deg/s. */
-  private static final double kMaxYawRateDegPerSec = 720.0;
-  /** Aceleracion plana maxima (m/s^2) para aceptar una medicion (choques / golpes). */
-  private static final double kMaxAccelMps2 = 6.0;
-  /** Mas lejos que esto el ruido de la camara es demasiado alto para corregir la pose. */
-  private static final double kMaxTagDistMeters = 5.0;
-  /** Desviacion estandar XY = base + k * distancia^2 / numero_de_tags (metros). */
-  private static final double kVisionBaseStd = 0.1;
-  private static final double kVisionDistStd = 0.05;
 
   private final Field2d field = new Field2d();
   public final String limelightName = "limelight";
@@ -90,12 +73,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
       new PathConstraints(4.5, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
   //private final PoseFinder finder;
-
-  private final SwerveRequest.ApplyRobotSpeeds pathPlannerRequest =
-      SwerveRequestFactory.pathPlannerRequest();
-  private RobotConfig robotConfig = null;
-  private Pose2d lastPathTargetPose = null;
-  private Consumer<Pose2d> pathTargetListener = null;
 
   private int lastIMUMode = -1;
 
@@ -124,7 +101,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
 
     NetworkIO.set(KeyManager.SWERVE_KEY, "SysID", m_sysIdRoutineToApply.toString());
 
-    //this.finder = new PoseFinder(this, pathConstraints);
+   // this.finder = new PoseFinder(this, pathConstraints);
   }
 
   /**
@@ -156,7 +133,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
 
     configurePathPlanner();
 
-    //this.finder = new PoseFinder(this, pathConstraints);
+   //this.finder = new PoseFinder(this, pathConstraints);
   }
 
   /**
@@ -208,59 +185,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
   private void configurePathPlanner() {
     try {
       // Cargar configuración de la GUI de PathPlanner (RobotConfig)
-      robotConfig = RobotConfig.fromGUISettings();
+      RobotConfig config = RobotConfig.fromGUISettings();
 
       AutoBuilder.configure(
           () -> this.getState().Pose, // 1. Supplier de Pose
           this::resetPose, // 2. Consumer para resetear pose
           this::getChassisSpeeds, // 3. Supplier de Velocidades actuales
-          this::applyPathPlannerOutput, // 4. Velocidades + feedforwards de fuerza por rueda
+          (speeds, feedforwards) ->
+              this.setControl(SwerveRequestFactory.pathPlannerRequest().withSpeeds(speeds)),
+          // -----------------------------
+
           new PPHolonomicDriveController(
-              SwerveConstants.PathTranslationPID, // PID de Traslación
-              SwerveConstants.PathRotationPID // PID de Rotación
+              new PIDConstants(5.0, 0.0, 0.0), // PID de Traslación
+              new PIDConstants(5.0, 0.0, 0.0) // PID de Rotación
               ),
-          robotConfig,
+          config,
           () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
           this);
     } catch (Exception e) {
       DriverStation.reportError("Fallo al configurar PathPlanner: " + e.getMessage(), true);
     }
-
-    // Pose objetivo vs pose real del path activo, para ver el error de seguimiento en AdvantageScope
-    PathPlannerLogging.setLogTargetPoseCallback(
-        pose -> {
-          lastPathTargetPose = pose;
-          field.getObject("PathTarget").setPose(pose);
-          NetworkIO.set(KeyManager.SWERVE_KEY, "PathTargetPose", pose);
-          if (pathTargetListener != null) {
-            pathTargetListener.accept(pose);
-          }
-        });
-    PathPlannerLogging.setLogActivePathCallback(
-        poses -> field.getObject("ActivePath").setPoses(poses));
-  }
-
-  /** Manda a los modulos la salida de PathPlanner, incluyendo el feedforward de fuerza por rueda. */
-  public void applyPathPlannerOutput(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
-    setControl(
-        pathPlannerRequest
-            .withSpeeds(speeds)
-            .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-            .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons()));
-  }
-
-  /** RobotConfig cargado de deploy/pathplanner/settings.json, o null si no se pudo cargar. */
-  public RobotConfig getRobotConfig() {
-    return robotConfig;
-  }
-
-  public Pose2d getLastPathTargetPose() {
-    return lastPathTargetPose;
-  }
-
-  /** Recibe cada pose objetivo que publica PathPlanner mientras sigue un path (null para quitarlo). */
-  public void setPathTargetListener(Consumer<Pose2d> listener) {
-    this.pathTargetListener = listener;
   }
 
   public ChassisSpeeds getChassisSpeeds() {
@@ -396,65 +340,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
 
   private void updateLimeVision() {
 
-    boolean accepted = false;
-    try {
-      if (!LimelightHelpers.getTV(limelightName)) return;
+    LimelightHelpers.PoseEstimate mt2 =
+        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
 
-      LimelightHelpers.PoseEstimate mt2 =
-          LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-
-      if (mt2 == null || mt2.tagCount == 0) return;
-      if (mt2.avgTagDist > kMaxTagDistMeters) return;
-
-      if (Math.abs(this.getPigeon2().getAngularVelocityZWorld().getValueAsDouble())
-          > kMaxYawRateDegPerSec) return;
-
-      double ax = this.getPigeon2().getAccelerationX().getValueAsDouble() * GravityFactor;
-      double ay = this.getPigeon2().getAccelerationY().getValueAsDouble() * GravityFactor;
-      if (Math.hypot(ax, ay) > kMaxAccelMps2) return;
-
-      // Pose basura: (0,0) exacto, NaN o fuera de la cancha.
-      Translation2d p = mt2.pose.getTranslation();
-      if (Double.isNaN(p.getX()) || Double.isNaN(p.getY())) return;
-      if (p.getNorm() < 1e-6) return;
-      if (p.getX() < 0 || p.getX() > Constants.FIELD_LENGTH_METERS) return;
-      if (p.getY() < 0 || p.getY() > Constants.FIELD_WIDTH_METERS) return;
-
-      double xyStd =
-          kVisionBaseStd + kVisionDistStd * mt2.avgTagDist * mt2.avgTagDist / mt2.tagCount;
-
-      NetworkIO.set("Chasis", "Mt2", mt2.pose);
-      NetworkIO.set("Chasis", "VisionTagDist", mt2.avgTagDist);
-      NetworkIO.set("Chasis", "VisionStdDev", xyStd);
-
-      // Theta enorme: el heading lo manda el Pigeon, la vision solo corrige X/Y.
-      addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(xyStd, xyStd, 9999999));
-      accepted = true;
-    } finally {
-      NetworkIO.set("Chasis", "VisionAccepted", accepted);
+    if (!LimelightHelpers.getTV(limelightName)) {
+      return;
     }
-  }
 
-  /**
-   * Distancia (m) desde la salida del shooter hasta el centro del hub, calculada con la pose
-   * fusionada (odometria + vision). No depende de ver un tag en este instante.
-   */
-  public double getDistanceToHub() {
-    boolean red = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
-    Translation2d hub =
-        red
-            ? new Translation2d(
-                Constants.FIELD_LENGTH_METERS - Constants.HUB_BLUE.getX(),
-                Constants.FIELD_WIDTH_METERS - Constants.HUB_BLUE.getY())
-            : Constants.HUB_BLUE;
+    if (mt2 == null || mt2.tagCount == 0) return;
 
-    Translation2d shooter =
-        getState()
-            .Pose
-            .transformBy(new Transform2d(Constants.ROBOT_TO_SHOOTER, Rotation2d.kZero))
-            .getTranslation();
+    if (Math.abs(this.getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 85) return;
 
-    return shooter.getDistance(hub);
+    if (Math.abs(this.getPigeon2().getAccelerationX().getValueAsDouble() * GravityFactor) >= 2.5
+        || Math.abs(this.getPigeon2().getAccelerationY().getValueAsDouble() * GravityFactor) >= 2.5)
+      return;
+
+    NetworkIO.set("Chasis", "Mt2", mt2.pose);
+
+    addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(.3, .3, 9999999));
   }
 
   public double getDistanceToTag() {
@@ -548,18 +451,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
   public void moveY(double speed) {
     setControl(SwerveRequestFactory.simpleDriveRequest().withVelocityY(speed));
   }
-/* 
-  public PoseFinder getPoseFinder() {
-    return finder;
-  }
-*/
+
+  // public PoseFinder getPoseFinder() {
+  //   return finder;
+  // }
+
   private void startSimThread() {
-    // Con MARS Simulation Studio corriendo, la fisica sale de Gazebo (masa, patinaje, choques);
-    // sin el, el glue llama a updateSimState y queda la simulacion cinematica de CTRE de siempre.
-    m_marsGlue = new MarsSimGlue(this);
+    m_lastSimTime = Utils.getCurrentTimeSeconds();
 
     /* Run simulation at a faster rate so PID gains behave more reasonably */
-    m_simNotifier = new Notifier(m_marsGlue::update);
+    m_simNotifier =
+        new Notifier(
+            () -> {
+              final double currentTime = Utils.getCurrentTimeSeconds();
+              double deltaTime = currentTime - m_lastSimTime;
+              m_lastSimTime = currentTime;
+
+              /* use the measured time delta, get battery voltage from WPILib */
+              updateSimState(deltaTime, RobotController.getBatteryVoltage());
+            });
     m_simNotifier.startPeriodic(kSimLoopPeriod);
   }
 
@@ -608,4 +518,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
     return super.samplePoseAt(Utils.fpgaToCurrentTime(timestampSeconds));
   }
 
+  public Subsystem asSubsystem() {
+    return this;
+  }
 }

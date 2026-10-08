@@ -10,10 +10,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import frc.robot.configuration.constants.TunerConstants;
-
-import com.ctre.phoenix6.swerve.SwerveRequest;
 
 public class SwerveRequestFactory {
 
@@ -57,11 +56,9 @@ public class SwerveRequestFactory {
         .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
   }
 
-  // Objeto para aplicar velocidades desde PathPlanner. Velocity cierra el lazo
-  // de velocidad en el TalonFX (Slot0 kS/kV/kA de SysId) en vez de voltaje abierto.
+  // Objeto para aplicar velocidades desde PathPlanner
   public static SwerveRequest.ApplyRobotSpeeds pathPlannerRequest() {
-    return new SwerveRequest.ApplyRobotSpeeds()
-        .withDriveRequestType(DriveRequestType.Velocity);
+    return new SwerveRequest.ApplyRobotSpeeds();
   }
 
   public static SwerveRequest.SysIdSwerveTranslation translationCharacterization() {
