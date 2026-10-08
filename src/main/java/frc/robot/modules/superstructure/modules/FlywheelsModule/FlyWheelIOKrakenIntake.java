@@ -23,6 +23,8 @@ public class FlyWheelIOKrakenIntake implements flywheelsIO {
         leaderShooter = new TalonFX(shooterWheelsConstants.shooterLeaderID, CANBus.roboRIO());
         followerShooter = new TalonFX(shooterWheelsConstants.shooterFollowerID, CANBus.roboRIO());
 
+        
+
         leaderConfig = new TalonFXConfiguration();
         followerConfig = new TalonFXConfiguration();
 

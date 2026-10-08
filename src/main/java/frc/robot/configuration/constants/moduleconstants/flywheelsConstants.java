@@ -38,19 +38,19 @@ public class flywheelsConstants {
          * PONER LA REAL. Con esto TODOS los RPM del codigo (setpoints, tablas, telemetria
          * velocityRPM) pasan a ser RPM de la RUEDA; el RPM del motor sale en motorRPM.
          */
-        public static final double kGearRatio = 3.0; // reduccion 3:1 (medido: la rueda llega a ~1600 RPM)
+        public static final double kGearRatio = 1.0; // reduccion 3:1 (medido: la rueda llega a ~1600 RPM)
 
         /**
          * Fraccion de la velocidad maxima teorica (a 12 V) que se permite pedir. Con carga el motor
          * no llega a la teorica (medido con 3:1: ~1600 de 1849 RPM de rueda = 87%), asi que 0.9 pedia
          * un RPM que NUNCA se alcanzaba y los rollers no arrancaban. 0.8 deja margen para el PID.
          */
-        public static final double kMaxSpeedMargin = 0.8;
+        public static final double kMaxSpeedMargin =  0.95;
 
         /** Tiempo (s) que las RPM deben estar dentro de tolerancia antes de arrancar los rollers. */
         public static final double kReadyDebounceSec = 0.15;
         /** Maximo tiempo (s) que shoot espera a que la rueda llegue al RPM; despues alimenta de todos modos. */
-        public static final double kSpinUpTimeoutSec = 1.5;
+        public static final double kSpinUpTimeoutSec = 3.0;
         /** PRUEBA de alcance: duty cycle maximo de las flywheels (1.0 = 100%, sin PID). */
         public static final double kMaxDuty = 1.0;
 
@@ -84,6 +84,11 @@ public class flywheelsConstants {
         public class IntakeWheelsConstants {
         public static final int IntakeWheels_ID = 14;
 
+        public static final double kIntakeRPMeat = -2000; // negativo
+        public static final double kIntakeRPMvomiatr = 2000; // negativo
+        public static final double kS = 0.1;
+        public static final double kV = 0.12;          
+        public static final double kP = 0.11;
         public static InvertedValue invertedValue = InvertedValue.CounterClockwise_Positive;
         public static double StatorCurrentLimit = 40;
         public static double SupplyCurrentLimit = 60;

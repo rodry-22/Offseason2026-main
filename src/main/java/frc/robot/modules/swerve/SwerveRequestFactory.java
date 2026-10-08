@@ -4,6 +4,11 @@
 
 package frc.robot.modules.swerve;
 
+// Copyright (c) 2026 STZ Robotics
+// Open Source Software; you can modify and/or share it under the terms of
+// the MIT license file in the root directory of this project.
+
+
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;

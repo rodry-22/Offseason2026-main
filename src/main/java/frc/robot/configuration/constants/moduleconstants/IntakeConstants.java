@@ -22,7 +22,7 @@ public class IntakeConstants {
 
     public static final double kStowAngleDeg = 0.0;
     /** MEDIR: grados desde guardado hasta tocar el piso / posicion de recoleccion. */
-    public static final double kDeployAngleDeg = 90.0;
+    public static final double kDeployAngleDeg = 130.0;
 
     public static final double kSoftLimitMarginDeg = 5.0;
 

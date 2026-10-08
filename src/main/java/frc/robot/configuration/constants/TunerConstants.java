@@ -1,4 +1,9 @@
 package frc.robot.configuration.constants;
+// Copyright (c) 2026 STZ Robotics
+// Open Source Software; you can modify and/or share it under the terms of
+// the MIT license file in the root directory of this project.
+
+
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
@@ -74,7 +79,7 @@ public class TunerConstants {
 
   // CAN bus that the devices are located on;
   // All swerve devices must share the same CAN bus
-  public static final CANBus kCANBus = new CANBus("Canivore", "./logs/example.hoot");
+  public static final CANBus kCANBus = new CANBus();
 
   // Theoretical free speed (m/s) at 12 V applied output;
   // This needs to be tuned to your individual robot

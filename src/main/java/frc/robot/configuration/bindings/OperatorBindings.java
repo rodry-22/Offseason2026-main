@@ -77,12 +77,12 @@ public class OperatorBindings implements Binding {
 
       // ---- INTAKE (operator): brazo con FF + PID del angulador ----
       // A (bottom) = bajar el brazo, Y (top) = subirlo. Al terminar, el default lo mantiene en su lugar.
-      buttons.bottom().onTrue(superstructure.deployIntake());
+      buttons.bottom().onTrue(superstructure.Intakedown());
       buttons.top().onTrue(superstructure.retractIntake());
       // X (left) = ruedas del intake mientras se mantiene.
       buttons.left().whileTrue(superstructure.intakewheels());
 
-      buttons.right().whileTrue(superstructure.intakewheelsOut());
+        buttons.right().whileTrue(superstructure.intakewheelsOut());
 
       // ---------------- CALIBRACION DEL INTAKE (temporal, solo con kAngulatorTuningMode) ----------------
       if (IntakeConstants.kAngulatorTuningMode) {

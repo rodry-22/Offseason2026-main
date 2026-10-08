@@ -3,6 +3,8 @@ package frc.robot.modules.swerve;
 // Copyright (c) 2026 STZ Robotics
 // Open Source Software; you can modify and/or share it under the terms of
 // the MIT license file in the root directory of this project.
+
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -101,7 +103,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
 
     NetworkIO.set(KeyManager.SWERVE_KEY, "SysID", m_sysIdRoutineToApply.toString());
 
-   // this.finder = new PoseFinder(this, pathConstraints);
+    //this.finder = new PoseFinder(this, pathConstraints);
   }
 
   /**
@@ -133,7 +135,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
 
     configurePathPlanner();
 
-   //this.finder = new PoseFinder(this, pathConstraints);
+   // this.finder = new PoseFinder(this, pathConstraints);
   }
 
   /**
@@ -175,7 +177,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain
 
     configurePathPlanner();
 
-    //this.finder = new PoseFinder(this, pathConstraints);
+   // this.finder = new PoseFinder(this, pathConstraints);
   }
 
   public void setSysIdRoutine(SysIdRoutine routine) {
