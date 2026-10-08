@@ -82,7 +82,7 @@ public class OperatorBindings implements Binding {
       // X (left) = ruedas del intake mientras se mantiene.
       buttons.left().whileTrue(superstructure.intakewheels());
 
-        buttons.right().whileTrue(superstructure.intakewheelsOut());
+      buttons.right().whileTrue(superstructure.intakewheelsOut());
 
       // ---------------- CALIBRACION DEL INTAKE (temporal, solo con kAngulatorTuningMode) ----------------
       if (IntakeConstants.kAngulatorTuningMode) {
