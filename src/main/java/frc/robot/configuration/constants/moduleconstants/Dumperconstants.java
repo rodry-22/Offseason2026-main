@@ -33,11 +33,6 @@ public class Dumperconstants {
     public static final double kG = 0.0;
     public static final double kS = 0.0;
     /** Angulo (grados) al que el centro de masa de la capucha queda horizontal (cos = 1). */
-    public static final double kCosOffsetDeg = 0.0;
-
-    /** Limitar la salida mientras calibras; subir a +-1 cuando ya este estable. */
-    public static final double kMinOutput = -0.5;
-    public static final double kMaxOutput = 0.5;
 
     public static final int kCurrentLimit = 30; // 0 puede dejar el motor sin salida
     public static final double kMaxVolts = 12;
