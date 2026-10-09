@@ -12,10 +12,10 @@ public class flywheelsConstants {
 
         // OJO: un limite de 0 A con Enable = true deja el motor SIN corriente (no gira / sin fuerza).
         // Para "sin limite" no pongas 0: pon un valor alto o Enable = false. Valores de MARS-base:
-        public static final double SupplyCurrentLimit = 70;
+        public static final double SupplyCurrentLimit = 120;
         public static final boolean SupplyCurrentLimitEnable = true;
 
-        public static final double StatorCurrentLimit = 120;
+        public static final double StatorCurrentLimit = 90;
         public static final boolean StatorCurrentLimitEnable = true;
 
         /**
@@ -31,7 +31,7 @@ public class flywheelsConstants {
 
         // ---------------- SHOOT ----------------
         /** RPM fijo del disparo manual (trigger izquierdo). 6000 RPM no se alcanza: pide 12.8 V solo de FF. */
-        public static final double kShootRPM = 5000;
+        public static final double kShootRPM = 6000;
         /**
          * Relacion de engranes del shooter = vueltas del MOTOR por cada vuelta de la RUEDA.
          * > 1 = reduccion (la rueda gira MAS LENTO que el motor), < 1 = aumento, 1 = directo.
@@ -45,7 +45,7 @@ public class flywheelsConstants {
          * no llega a la teorica (medido con 3:1: ~1600 de 1849 RPM de rueda = 87%), asi que 0.9 pedia
          * un RPM que NUNCA se alcanzaba y los rollers no arrancaban. 0.8 deja margen para el PID.
          */
-        public static final double kMaxSpeedMargin =  0.95;
+        public static final double kMaxSpeedMargin =  0.9;
 
         /** Tiempo (s) que las RPM deben estar dentro de tolerancia antes de arrancar los rollers. */
         public static final double kReadyDebounceSec = 0.15;
@@ -63,7 +63,7 @@ public class flywheelsConstants {
 
         /** RPM maximo de la RUEDA que el codigo permite pedir, calculado con kS, kV, 12 V y la relacion. */
         public static final double kMaxWheelRPM = ((12.0 - kS) / kV) * 60.0 / kGearRatio * kMaxSpeedMargin;
-        public static final double kP = 0.5;
+        public static final double kP = 0.95;
         public static final double kI = 0;
 
         public static final double kD = 0;

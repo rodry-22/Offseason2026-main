@@ -3,100 +3,83 @@ package frc.robot.modules.superstructure.modules.FlywheelsModule;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants;
+import frc.robot.configuration.constants.moduleconstants.flywheelsConstants.shooterWheelsConstants.IntakeWheelsConstants;
 
 public class FlyWheelIOKrakenIntake implements flywheelsIO {
 
-    private TalonFX leaderShooter, followerShooter;
-    private TalonFXConfiguration leaderConfig, followerConfig;
-    private TalonFXConfigurator leaderConfigurator, followerConfigurator;
+    // Un solo motor: el del intake (ID 14). ANTES usaba los IDs 19 y 20, que son los del SHOOTER.
+    private TalonFX intakeMotor;
+    private TalonFXConfiguration intakeConfig;
+    private TalonFXConfigurator intakeConfigurator;
 
     private VelocityVoltage velocityRequest;
     private double velocityTarget;
 
     public FlyWheelIOKrakenIntake(){
-        leaderShooter = new TalonFX(shooterWheelsConstants.shooterLeaderID, CANBus.roboRIO());
-        followerShooter = new TalonFX(shooterWheelsConstants.shooterFollowerID, CANBus.roboRIO());
+        // CONFIRMAR: que el motor 14 este en el bus del roboRIO (mismo bus que el swerve ahora).
+        intakeMotor = new TalonFX(IntakeWheelsConstants.IntakeWheels_ID, CANBus.roboRIO());
 
-        
-
-        leaderConfig = new TalonFXConfiguration();
-        followerConfig = new TalonFXConfiguration();
-
-        leaderConfigurator = leaderShooter.getConfigurator();
-        followerConfigurator = followerShooter.getConfigurator();
+        intakeConfig = new TalonFXConfiguration();
+        intakeConfigurator = intakeMotor.getConfigurator();
 
         velocityRequest = new VelocityVoltage(0);
-
-        followerShooter.setControl(new Follower(shooterWheelsConstants.shooterLeaderID, MotorAlignmentValue.Opposed));
 
         configMotor();
     }
 
     public void configMotor(){
-        var limitConfigs = leaderConfig.CurrentLimits;
+        var limitConfigs = intakeConfig.CurrentLimits;
 
-    limitConfigs.SupplyCurrentLimit = shooterWheelsConstants.SupplyCurrentLimit;
-    limitConfigs.SupplyCurrentLimitEnable = shooterWheelsConstants.SupplyCurrentLimitEnable;
+        limitConfigs.SupplyCurrentLimit = IntakeWheelsConstants.SupplyCurrentLimit;
+        limitConfigs.SupplyCurrentLimitEnable = true;
 
-    limitConfigs.StatorCurrentLimit = shooterWheelsConstants.StatorCurrentLimit;
-    limitConfigs.StatorCurrentLimitEnable = shooterWheelsConstants.StatorCurrentLimitEnable;
+        limitConfigs.StatorCurrentLimit = IntakeWheelsConstants.StatorCurrentLimit;
+        limitConfigs.StatorCurrentLimitEnable = true;
 
-    // Sentido de giro: con kShooterInverted el disparo queda en sentido positivo (ver constantes).
-    leaderConfig.MotorOutput.Inverted = shooterWheelsConstants.kShooterInverted;
-    followerConfig.MotorOutput.Inverted = shooterWheelsConstants.kShooterInverted;
+        // Si el intake gira al reves, cambiar IntakeWheelsConstants.invertedValue.
+        intakeConfig.MotorOutput.Inverted = IntakeWheelsConstants.invertedValue;
 
-    var slot0Configs = leaderConfig.Slot0;
+        // Ganancias PROPIAS del intake (antes se usaban las del shooter).
+        var slot0Configs = intakeConfig.Slot0;
+        slot0Configs.kS = IntakeWheelsConstants.kS;
+        slot0Configs.kV = IntakeWheelsConstants.kV;
+        slot0Configs.kP = IntakeWheelsConstants.kP;
 
-    slot0Configs.kS = shooterWheelsConstants.kS;
-    slot0Configs.kV = shooterWheelsConstants.kV;
-    slot0Configs.kP = shooterWheelsConstants.kP;
-    slot0Configs.kI = shooterWheelsConstants.kI;
-    slot0Configs.kD = shooterWheelsConstants.kD;
-
-    leaderConfigurator.apply(leaderConfig);
-    followerConfigurator.apply(followerConfig);
-
-    leaderConfigurator.apply(limitConfigs);
-    followerConfigurator.apply(limitConfigs);
+        intakeConfigurator.apply(intakeConfig);
     }
-    
-    @Override 
+
+    @Override
     public void updateInputs(FlyWheelsInputs inputs){
-        double motorRPM = leaderShooter.getVelocity().getValueAsDouble() * 60.0; //Convertir RPS A RPM
+        double motorRPM = intakeMotor.getVelocity().getValueAsDouble() * 60.0; // RPS -> RPM
         inputs.motorRPM = motorRPM;
-        inputs.velocityRPM = motorRPM / shooterWheelsConstants.kGearRatio; // RPM de la RUEDA
+        inputs.velocityRPM = motorRPM; // sin reduccion conocida
 
-        // Follower: si su magnitud/corriente no se parece a la del lider, los motores se pelean.
-        inputs.followerRPM = followerShooter.getVelocity().getValueAsDouble() * 60.0;
-        inputs.followerCurrent = followerShooter.getStatorCurrent().getValueAsDouble();
+        // El intake no tiene follower.
+        inputs.followerRPM = 0;
+        inputs.followerCurrent = 0;
 
-        inputs.appliedVolts = leaderShooter.getMotorVoltage().getValueAsDouble();
+        inputs.appliedVolts = intakeMotor.getMotorVoltage().getValueAsDouble();
         inputs.targetRPM = this.velocityTarget;
 
-        inputs.current = leaderShooter.getStatorCurrent().getValueAsDouble();
+        inputs.current = intakeMotor.getStatorCurrent().getValueAsDouble();
     }
 
-    @Override 
+    @Override
     public void setTargetRPM(double RPM){
         this.velocityTarget = RPM;
-        // RPM es de la RUEDA; el motor debe girar kGearRatio veces mas rapido (las ganancias siguen en unidades del motor).
-        leaderShooter.setControl(
-            velocityRequest.withVelocity(RPM * shooterWheelsConstants.kGearRatio / 60.0).withSlot(0));   
+        intakeMotor.setControl(velocityRequest.withVelocity(RPM / 60.0).withSlot(0));
     }
 
-    @Override 
+    @Override
     public void applyOutput(double volts){
-        leaderShooter.setVoltage(volts);
+        intakeMotor.setVoltage(volts);
     }
 
     @Override
     public void setSpeed(double speed){
-        leaderShooter.set(speed);
+        intakeMotor.set(speed);
     }
 }
